@@ -1,0 +1,510 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button.secondary {
+  background-color: #555;
+}
+
+button.danger {
+  background-color: #f44336;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  border-radius: 5px;
+  background-color: white;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.entry-list {
+  margin-top: 20px;
+}
+
+.entry-item {
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.entry-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.entry-audio {
+  margin: 10px 0;
+}
+
+.entry-image {
+  max-width: 100%;
+  max-height: 200px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+.entry-meta {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.weather-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Nieuwe stijlen voor locatie informatie */
+.location-name {
+  font-weight: 600;
+  color: #2c5282;
+  font-size: 1.1em;
+}
+
+.location-coords {
+  color: #718096;
+  font-size: 0.9em;
+}
+
+.location-info {
+  background-color: #ebf8ff;
+  border-left: 4px solid #4299e1;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+
+.error {
+  color: #e53e3e;
+  background-color: #fff5f5;
+  padding: 10px;
+  border-radius: 4px;
+  border-left: 4px solid #f56565;
+  margin: 10px 0;
+}
+
+/* Stijl voor niet-beschikbare weergegevens */
+.weather-unavailable {
+  color: #A0AEC0;
+  font-style: italic;
+}
+
+.weather-info {
+  background-color: #f0fff4;
+  border-left: 4px solid #68d391;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Stijlen voor de kaartweergave */
+.map-container {
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.map-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.map-legend {
+  display: flex;
+  gap: 20px;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.user-marker,
+.entry-marker {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.user-marker {
+  background-color: #2563eb;
+}
+
+.entry-marker {
+  background-color: #dc2626;
+}
+
+.map-popup {
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.map-popup h3 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.map-popup p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.popup-thumbnail {
+  width: 100%;
+  height: auto;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+/* Stijlen voor navigatiemenu */
+.nav-menu {
+  display: flex;
+  background-color: #22543d;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.nav-item {
+  padding: 8px 16px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+  background-color: #2f855a;
+}
+
+.map-info {
+  margin: 10px 0;
+  text-align: center;
+  font-size: 16px;
+  color: #4a5568;
+}
+
+.no-entries-message {
+  color: #718096;
+  font-style: italic;
+}
+
+.entries-count {
+  font-weight: 500;
+  color: #2c5282;
+}
+
+/* Stijlen voor spraaktranscriptie */
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+.pulse {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #e53e3e;
+  margin-right: 8px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(229, 62, 62, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+  }
+}
+
+.transcribing-status {
+  font-size: 14px;
+  color: #718096;
+  margin-left: 10px;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.transcript-preview, .entry-transcript {
+  background-color: #f8f9fa;
+  border-left: 4px solid #4299e1;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.transcript-text {
+  font-style: italic;
+  color: #2d3748;
+  line-height: 1.5;
+}
+
+.note-help {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.bird-marker {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 5px;
+  background-color: #16a34a;
+}
+
+.bird-info-btn {
+  margin-top: 10px;
+  background-color: #047857;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.bird-panel {
+  margin: 15px 0;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading-birds {
+  text-align: center;
+  padding: 10px;
+  color: #4a5568;
+  font-style: italic;
+}
+
+.bird-error {
+  color: #e53e3e;
+  background-color: #fff5f5;
+  padding: 10px;
+  border-radius: 4px;
+  border-left: 4px solid #f56565;
+  margin: 10px 0;
+}
+
+.bird-data-panel h3 {
+  color: #166534;
+  border-bottom: 2px solid #dcfce7;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+
+.bird-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bird-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.bird-item:last-child {
+  border-bottom: none;
+}
+
+.bird-name {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.bird-scientific {
+  font-size: 14px;
+  font-style: italic;
+  color: #718096;
+  margin-left: 5px;
+}
+
+.bird-details {
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.bird-popup {
+  min-width: 200px;
+}
+
+.bird-popup h3 {
+  margin-top: 0;
+  color: #166534;
+  border-bottom: 1px solid #dcfce7;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.bird-popup p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.bird-popup a {
+  display: inline-block;
+  margin-top: 5px;
+  color: #047857;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.bird-popup a:hover {
+  text-decoration: underline;
+}
+
+.bird-dutch-name {
+  font-weight: 500;
+  color: #065f46;
+  margin-left: 5px;
+}
+
+.bird-image-links {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.image-link {
+  color: #047857;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.image-link:hover {
+  text-decoration: underline;
+}
+
+.link-separator {
+  margin: 0 5px;
+  color: #9ca3af;
+}
+
+.bird-links {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.bird-links p {
+  margin: 5px 0;
+}
+
+.bird-links a {
+  color: #047857;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.bird-links a:hover {
+  text-decoration: underline;
+} 

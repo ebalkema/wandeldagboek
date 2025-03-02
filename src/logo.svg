@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="128" fill="#22543d"/>
+  <g transform="translate(106, 96)">
+    <!-- Boomsilhouet -->
+    <path d="M80 260V320H120V260L150 180L120 80H80L50 180L80 260Z" fill="#e2e8f0"/>
+    <!-- Wandelpad -->
+    <path d="M150 320H250C270 320 280 300 270 280L220 180C210 160 190 160 180 180L130 280C120 300 130 320 150 320Z" fill="#f7fafc"/>
+    <!-- Zon -->
+    <circle cx="250" cy="80" r="40" fill="#f6e05e"/>
+    <!-- Bergen -->
+    <path d="M150 220L200 150L250 220L300 150V220H150Z" fill="#a0aec0"/>
+  </g>
+</svg> 
