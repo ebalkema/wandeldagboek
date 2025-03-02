@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Achtergrond cirkel -->
+  <circle cx="256" cy="256" r="240" fill="#f5f5f5" />
+  
+  <!-- Bergen -->
+  <path d="M96 320 L192 180 L288 280 L384 200 L480 320 Z" fill="#4CAF50" opacity="0.8" />
+  <path d="M32 320 L128 220 L224 280 L320 180 L416 240 L512 320 Z" fill="#2E7D32" opacity="0.9" />
+  
+  <!-- Wandelpad -->
+  <path d="M120 320 Q180 280 200 300 Q240 340 280 280 Q320 220 380 260 Q420 290 440 320" 
+        fill="none" stroke="#795548" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1, 12" />
+  
+  <!-- Kompas -->
+  <circle cx="256" cy="160" r="60" fill="white" stroke="#455A64" stroke-width="4" />
+  <circle cx="256" cy="160" r="50" fill="none" stroke="#455A64" stroke-width="2" />
+  <path d="M256 120 L256 140 M256 180 L256 200 M216 160 L236 160 M276 160 L296 160" 
+        stroke="#455A64" stroke-width="2" />
+  <path d="M256 160 L236 130" stroke="#455A64" stroke-width="3" />
+  <path d="M256 160 L276 190" stroke="#E53935" stroke-width="3" />
+  <circle cx="256" cy="160" r="5" fill="#455A64" />
+  
+  <!-- Tekst -->
+  <path d="M120 380 L392 380" stroke="#4CAF50" stroke-width="4" stroke-linecap="round" />
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="#2E7D32">WANDELDAGBOEK</text>
+</svg> 
