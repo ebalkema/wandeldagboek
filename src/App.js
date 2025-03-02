@@ -57,6 +57,31 @@ function App() {
     }, duration);
   }, []);
   
+  // Functie om entries op te halen uit Firestore - verplaatst naar boven
+  const loadEntriesFromFirestore = useCallback(async () => {
+    if (!user) {
+      console.log('Geen gebruiker ingelogd, entries worden niet opgehaald');
+      setEntries([]);
+      return;
+    }
+    
+    console.log('Entries ophalen voor gebruiker:', user.uid);
+    setEntriesLoading(true);
+    setEntriesError(null);
+    
+    try {
+      const userEntries = await fetchEntries(user.uid);
+      console.log(`${userEntries.length} entries opgehaald:`, userEntries);
+      setEntries(userEntries);
+    } catch (error) {
+      console.error('Fout bij ophalen entries:', error);
+      setEntriesError(`Fout bij ophalen notities: ${error.message || 'Onbekende fout'}`);
+      showToast(`Fout bij ophalen notities: ${error.message || 'Onbekende fout'}`, 'error');
+    } finally {
+      setEntriesLoading(false);
+    }
+  }, [user, showToast]);
+  
   // Toggle donkere modus
   const toggleDarkMode = () => {
     const newMode = !darkMode;
@@ -102,31 +127,6 @@ function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, [showToast, loadEntriesFromFirestore]);
-
-  // Functie om entries op te halen uit Firestore
-  const loadEntriesFromFirestore = useCallback(async () => {
-    if (!user) {
-      console.log('Geen gebruiker ingelogd, entries worden niet opgehaald');
-      setEntries([]);
-      return;
-    }
-    
-    console.log('Entries ophalen voor gebruiker:', user.uid);
-    setEntriesLoading(true);
-    setEntriesError(null);
-    
-    try {
-      const userEntries = await fetchEntries(user.uid);
-      console.log(`${userEntries.length} entries opgehaald:`, userEntries);
-      setEntries(userEntries);
-    } catch (error) {
-      console.error('Fout bij ophalen entries:', error);
-      setEntriesError(`Fout bij ophalen notities: ${error.message || 'Onbekende fout'}`);
-      showToast(`Fout bij ophalen notities: ${error.message || 'Onbekende fout'}`, 'error');
-    } finally {
-      setEntriesLoading(false);
-    }
-  }, [user, showToast]);
 
   // Haal entries op uit Firestore wanneer de gebruiker inlogt
   useEffect(() => {

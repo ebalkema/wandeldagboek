@@ -21,23 +21,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   const audioChunksRef = useRef([]);
   const recognitionRef = useRef(null);
 
-  // Effect voor het initialiseren van de spraakherkenning bij het laden van de component
-  useEffect(() => {
-    // Initialiseer de SpeechRecognition API als die beschikbaar is
-    initSpeechRecognition();
-    
-    // Start het ophalen van locatie en weer op de achtergrond
-    fetchLocationAndWeather();
-    
-    // Cleanup functie voor SpeechRecognition
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, [fetchLocationAndWeather]);
-
-  // Functie om locatie en weer op de achtergrond op te halen
+  // Functie om locatie en weer op de achtergrond op te halen - verplaatst naar boven
   const fetchLocationAndWeather = useCallback(() => {
     if (navigator.geolocation) {
       setIsLoadingLocation(true);
@@ -59,50 +43,6 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       setError('Geolocation wordt niet ondersteund door deze browser.');
     }
   }, []);
-
-  // Initialiseer de Speech Recognition API
-  const initSpeechRecognition = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      console.warn("Spraakherkenning wordt niet ondersteund door deze browser.");
-      return;
-    }
-    
-    recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = true;
-    recognitionRef.current.interimResults = true;
-    recognitionRef.current.lang = 'nl-NL';
-    
-    recognitionRef.current.onstart = () => {
-      setIsRecognizing(true);
-      console.log("Spraakherkenning gestart");
-    };
-    
-    recognitionRef.current.onresult = (event) => {
-      let finalTranscript = '';
-      
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
-        }
-      }
-      
-      // Combineer eerdere transcriptie met nieuwe
-      setTranscript(prev => prev + finalTranscript);
-    };
-    
-    recognitionRef.current.onerror = (event) => {
-      console.error("Spraakherkenningsfout:", event.error);
-      setIsRecognizing(false);
-    };
-    
-    recognitionRef.current.onend = () => {
-      setIsRecognizing(false);
-      console.log("Spraakherkenning beëindigd");
-    };
-  };
 
   // Functie om plaatsnaam op te halen op basis van coördinaten
   const fetchLocationName = async (latitude, longitude) => {
@@ -271,6 +211,89 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
     }
   };
 
+  // Update de fetchLocationAndWeather functie om de afhankelijkheden correct te definiëren
+  const fetchLocationAndWeatherWithDeps = useCallback(() => {
+    if (navigator.geolocation) {
+      setIsLoadingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ latitude, longitude });
+          fetchWeather(latitude, longitude);
+          fetchLocationName(latitude, longitude);
+          setIsLoadingLocation(false);
+        },
+        (err) => {
+          console.error('Locatiefout:', err);
+          setError('Kan locatie niet verkrijgen. Zorg dat je locatietoegang hebt ingeschakeld.');
+          setIsLoadingLocation(false);
+        }
+      );
+    } else {
+      setError('Geolocation wordt niet ondersteund door deze browser.');
+    }
+  }, [fetchWeather, fetchLocationName]);
+
+  // Effect voor het initialiseren van de spraakherkenning bij het laden van de component
+  useEffect(() => {
+    // Initialiseer de SpeechRecognition API als die beschikbaar is
+    initSpeechRecognition();
+    
+    // Start het ophalen van locatie en weer op de achtergrond
+    fetchLocationAndWeatherWithDeps();
+    
+    // Cleanup functie voor SpeechRecognition
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [fetchLocationAndWeatherWithDeps]);
+
+  // Initialiseer de Speech Recognition API
+  const initSpeechRecognition = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      console.warn("Spraakherkenning wordt niet ondersteund door deze browser.");
+      return;
+    }
+    
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = 'nl-NL';
+    
+    recognitionRef.current.onstart = () => {
+      setIsRecognizing(true);
+      console.log("Spraakherkenning gestart");
+    };
+    
+    recognitionRef.current.onresult = (event) => {
+      let finalTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        }
+      }
+      
+      // Combineer eerdere transcriptie met nieuwe
+      setTranscript(prev => prev + finalTranscript);
+    };
+    
+    recognitionRef.current.onerror = (event) => {
+      console.error("Spraakherkenningsfout:", event.error);
+      setIsRecognizing(false);
+    };
+    
+    recognitionRef.current.onend = () => {
+      setIsRecognizing(false);
+      console.log("Spraakherkenning beëindigd");
+    };
+  };
+
   // Start audio opname en spraakherkenning
   const startRecording = async () => {
     try {
@@ -302,7 +325,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       
       // Als we nog geen locatie hebben, probeer deze nu op te halen
       if (!location) {
-        fetchLocationAndWeather();
+        fetchLocationAndWeatherWithDeps();
       }
     } catch (error) {
       console.error('Opnamefout:', error);
