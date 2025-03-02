@@ -4,6 +4,13 @@ const NavigationMenu = ({ currentView, onNavigate }) => {
   return (
     <nav className="nav-menu">
       <div 
+        className={`nav-item ${currentView === 'home' ? 'active' : ''}`} 
+        onClick={() => onNavigate('home')}
+      >
+        Home
+      </div>
+      
+      <div 
         className={`nav-item ${currentView === 'list' ? 'active' : ''}`} 
         onClick={() => onNavigate('list')}
       >
@@ -23,6 +30,15 @@ const NavigationMenu = ({ currentView, onNavigate }) => {
       >
         Nieuwe Notitie
       </div>
+      
+      <a 
+        href="http://www.mennoenerwin.nl" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="nav-item external-link"
+      >
+        Mennoenerwin.nl
+      </a>
     </nav>
   );
 };

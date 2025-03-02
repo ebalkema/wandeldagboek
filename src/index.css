@@ -242,30 +242,47 @@ input, textarea {
 /* Stijlen voor navigatiemenu */
 .nav-menu {
   display: flex;
-  background-color: #22543d;
-  padding: 12px 20px;
-  border-radius: 8px;
+  justify-content: space-around;
   margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  background-color: #f0f4f0;
+  padding: 10px;
   overflow-x: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .nav-item {
-  padding: 8px 16px;
-  color: white;
-  font-weight: 500;
+  padding: 10px 15px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 5px;
+  text-align: center;
+  transition: background-color 0.3s ease;
   white-space: nowrap;
-  transition: background-color 0.2s;
+  flex: 1;
+  margin: 0 5px;
 }
 
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #dce8e0;
 }
 
 .nav-item.active {
-  background-color: #2f855a;
+  background-color: #22543d;
+  color: white;
+}
+
+.nav-item.external-link {
+  color: #22543d;
+  background-color: #e6ffe6;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.nav-item.external-link:hover {
+  background-color: #d0ffd0;
 }
 
 .map-info {
@@ -507,4 +524,84 @@ input, textarea {
 
 .bird-links a:hover {
   text-decoration: underline;
+}
+
+/* Home pagina */
+.home-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.home-container h2 {
+  color: #22543d;
+  border-bottom: 2px solid #22543d;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.home-container section {
+  margin-bottom: 30px;
+}
+
+.home-container h3 {
+  color: #22543d;
+  margin-bottom: 15px;
+}
+
+.home-container ul, 
+.home-container ol {
+  padding-left: 20px;
+}
+
+.home-container li {
+  margin-bottom: 10px;
+}
+
+.home-container .features ul li {
+  list-style-type: none;
+  padding-left: 25px;
+  position: relative;
+}
+
+.home-container .features ul li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #22543d;
+  font-weight: bold;
+}
+
+.home-container .how-to-use ol li {
+  margin-bottom: 20px;
+}
+
+.home-container .how-to-use p {
+  margin-top: 5px;
+  color: #555;
+}
+
+.home-container .pwa-instructions h4 {
+  margin: 15px 0 10px;
+  color: #22543d;
+}
+
+.home-container .created-by {
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+  text-align: center;
+  font-style: italic;
+  color: #777;
+}
+
+@media (max-width: 600px) {
+  .nav-menu {
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .nav-item {
+    flex: 0 0 auto;
+  }
 } 

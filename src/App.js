@@ -4,10 +4,11 @@ import EntryList from './components/EntryList';
 import NewEntry from './components/NewEntry';
 import NavigationMenu from './components/NavigationMenu';
 import MapView from './components/MapView';
+import Home from './components/Home';
 
 function App() {
-  // States voor applicatie - standaard 'map' in plaats van 'list'
-  const [view, setView] = useState('map'); // 'list', 'new', 'map'
+  // States voor applicatie - standaard 'home' in plaats van 'map'
+  const [view, setView] = useState('home'); // 'home', 'list', 'new', 'map'
   const [entries, setEntries] = useState([]);
 
   // Ophalen van entries uit localStorage bij het laden van de app
@@ -38,6 +39,8 @@ function App() {
   // Functie om inhoud te renderen op basis van huidige weergave
   const renderContent = () => {
     switch(view) {
+      case 'home':
+        return <Home />;
       case 'list':
         return (
           <>
@@ -54,7 +57,7 @@ function App() {
       case 'map':
         return <MapView entries={entries} />;
       default:
-        return <MapView entries={entries} />;
+        return <Home />;
     }
   };
 
