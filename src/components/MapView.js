@@ -314,11 +314,18 @@ const MapView = ({ entries }) => {
                       {entry.locationName || 'Onbekende locatie'}
                     </p>
                     
-                    {entry.weather && entry.weather.description !== 'gegevens niet beschikbaar' && (
-                      <p>
-                        <strong>Weer:</strong>{' '}
-                        {entry.weather.description}, {entry.weather.temperature}°C
-                      </p>
+                    {entry.weather && entry.weather.description !== 'gegevens niet beschikbaar' && entry.weather.description !== 'Weergegevens niet beschikbaar' && (
+                      <div className="map-popup-weather">
+                        <p>
+                          <strong>Weer:</strong>{' '}
+                          {entry.weather.description}, {entry.weather.temperature}°C
+                        </p>
+                        {entry.weather.humidity && entry.weather.windSpeed && (
+                          <p className="map-popup-weather-details">
+                            Luchtvochtigheid: {entry.weather.humidity}% | Wind: {entry.weather.windSpeed} m/s
+                          </p>
+                        )}
+                      </div>
                     )}
                     
                     {entry.notes && (

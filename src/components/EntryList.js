@@ -95,32 +95,41 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
   const renderWeather = (weatherData) => {
     if (!weatherData) {
       return (
-        <p className="weather-info weather-unavailable">
+        <div className="weather-info weather-unavailable">
           <strong>Weer: </strong>
           <span>Weergegevens niet beschikbaar</span>
-        </p>
+        </div>
       );
     }
     
     // Controleer of we geldige weergegevens hebben
     const hasValidData = weatherData.description && 
-                        weatherData.description !== 'gegevens niet beschikbaar' && 
+                        weatherData.description !== 'gegevens niet beschikbaar' &&
+                        weatherData.description !== 'Weergegevens niet beschikbaar' && 
                         weatherData.temperature !== undefined;
     
     if (!hasValidData) {
       return (
-        <p className="weather-info weather-unavailable">
+        <div className="weather-info weather-unavailable">
           <strong>Weer: </strong>
           <span>Weergegevens niet beschikbaar</span>
-        </p>
+        </div>
       );
     }
     
     return (
-      <p className="weather-info">
-        <strong>Weer: </strong>
-        {weatherData.description}, {weatherData.temperature}°C
-      </p>
+      <div className="weather-info">
+        <div>
+          <strong>Weer: </strong>
+          {weatherData.description}, {weatherData.temperature}°C
+        </div>
+        {weatherData.humidity && weatherData.windSpeed && (
+          <div className="weather-details">
+            <span className="weather-detail">Luchtvochtigheid: {weatherData.humidity}%</span>
+            <span className="weather-detail">Wind: {weatherData.windSpeed} m/s</span>
+          </div>
+        )}
+      </div>
     );
   };
 

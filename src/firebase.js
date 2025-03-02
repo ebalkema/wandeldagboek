@@ -13,7 +13,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyANM0t0Jt4SpfGRe8Fm1sTyu5MiNcArE8M",
   authDomain: "wandeldagboek-1.firebaseapp.com",
   projectId: "wandeldagboek-1",
-  storageBucket: "wandeldagboek-1.firebasestorage.app",
+  storageBucket: "wandeldagboek-1.appspot.com",
   messagingSenderId: "491469039773",
   appId: "1:491469039773:web:b1b1129d6de831076acc74"
 };

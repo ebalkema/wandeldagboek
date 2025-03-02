@@ -14,9 +14,8 @@ import { fetchEntries, addEntry as addEntryToFirestore, deleteEntry as deleteEnt
 // Banner en Footer componenten
 const MEBanner = () => (
   <div className="me-banner">
-    <img src="https://www.mennoenerwin.nl/logo.png" alt="Menno & Erwin Logo" />
-    <h2>Wandeldagboek App</h2>
-    <p>Een project geïnspireerd door <a href="https://www.mennoenerwin.nl" target="_blank" rel="noopener noreferrer">mennoenerwin.nl</a></p>
+    <img src="https://placehold.co/200x50/4CAF50/ffffff?text=Wandeldagboek" alt="Wandeldagboek Logo" />
+    <h2>Wandeldagboek</h2>
   </div>
 );
 
@@ -24,13 +23,12 @@ const MEFooter = () => (
   <footer className="me-footer">
     <div className="me-footer-content">
       <div>
-        <p>Geïnspireerd door de wandelavonturen op</p>
-        <a href="https://www.mennoenerwin.nl" target="_blank" rel="noopener noreferrer">mennoenerwin.nl</a>
+        <p>Wandeldagboek App</p>
       </div>
       <div className="me-footer-links">
-        <a href="https://www.mennoenerwin.nl/wandelen" target="_blank" rel="noopener noreferrer">Wandelroutes</a>
-        <a href="https://www.mennoenerwin.nl/fotos" target="_blank" rel="noopener noreferrer">Foto's</a>
-        <a href="https://www.mennoenerwin.nl/contact" target="_blank" rel="noopener noreferrer">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#voorwaarden">Voorwaarden</a>
+        <a href="#contact">Contact</a>
       </div>
     </div>
   </footer>
@@ -128,10 +126,9 @@ function App() {
     } finally {
       setEntriesLoading(false);
     }
-  }, [user]);
+  }, [user, showToast]);
 
   // Haal entries op uit Firestore wanneer de gebruiker inlogt
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadEntriesFromFirestore();
   }, [loadEntriesFromFirestore]);
@@ -287,20 +284,6 @@ function App() {
     showToast(`Welkom ${user.displayName || user.email}!`, 'success');
   };
 
-  // Functie om uit te loggen
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      setUser(null);
-      setEntries([]);
-      setView('home');
-      showToast('Je bent uitgelogd.', 'info');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      showToast(`Fout bij uitloggen: ${error.message}`, 'error');
-    }
-  };
-  
   // Functies voor navigatie met geschiedenis
   const navigateTo = (newView, entryId = null) => {
     // Als we naar edit gaan, sla dan het entry ID op
@@ -309,81 +292,6 @@ function App() {
     }
     
     setView(newView);
-  };
-
-  // Functie om inhoud te renderen op basis van huidige weergave
-  const renderContent = () => {
-    // Toon de authenticatie container als er geen gebruiker is ingelogd
-    if (!user) {
-      return <AuthContainer onAuthSuccess={handleAuthSuccess} />;
-    }
-
-    switch(view) {
-      case 'home':
-        return <Home />;
-      case 'list':
-        return (
-          <>
-            {entriesError && (
-              <div className="error-message">
-                {entriesError}
-                <button onClick={refreshEntries}>Probeer opnieuw</button>
-              </div>
-            )}
-            
-            <EntryList 
-              entries={entries} 
-              onDelete={deleteEntry} 
-              onEdit={(entry) => navigateTo('edit', entry.id)}
-              onViewMap={(entryId) => navigateTo('map')}
-              loading={entriesLoading}
-            />
-          </>
-        );
-      case 'new':
-        return (
-          <NewEntry 
-            onAddEntry={addEntry} 
-            onCancel={() => navigateTo('map')} // Terug naar kaart bij annuleren
-            isOffline={isOffline}
-          />
-        );
-      case 'edit':
-        const entryToEdit = getSelectedEntry();
-        return entryToEdit ? (
-          <EditEntry
-            entry={entryToEdit}
-            onSave={updateEntry}
-            onCancel={() => navigateTo('list')}
-          />
-        ) : (
-          <>
-            <p>Notitie niet gevonden.</p>
-            <button className="secondary-btn" onClick={() => navigateTo('list')}>
-              Terug naar overzicht
-            </button>
-          </>
-        );
-      case 'map':
-        return (
-          <>
-            <div className="map-header">
-              <h2>Kaartweergave</h2>
-              <div className="header-actions">
-                <button onClick={() => navigateTo('list')} className="view-list-btn">
-                  📝 Lijstweergave
-                </button>
-                <button onClick={refreshEntries} className="refresh-btn">
-                  Vernieuwen
-                </button>
-              </div>
-            </div>
-            <MapView entries={entries} />
-          </>
-        );
-      default:
-        return <Home />;
-    }
   };
 
   // Laadscherm weergeven tijdens initialisatie
@@ -404,7 +312,7 @@ function App() {
           <p>Laden...</p>
         </div>
       ) : !user ? (
-        <AuthContainer setUser={setUser} />
+        <AuthContainer onAuthSuccess={handleAuthSuccess} />
       ) : (
         <>
           <MEBanner />
@@ -415,11 +323,11 @@ function App() {
                 <button className="logout-btn" onClick={() => auth.signOut()}>Uitloggen</button>
               </div>
               <button className="theme-toggle" onClick={toggleDarkMode}>
-                {darkMode ? '☀️ Lichte modus' : '🌙 Donkere modus'}
+                {darkMode ? '☀️ Licht' : '🌙 Donker'}
               </button>
             </header>
             
-            <NavigationMenu view={view} setView={setView} />
+            <NavigationMenu currentView={view} onNavigate={setView} />
             
             {isOffline && (
               <div className="offline-indicator">
@@ -449,7 +357,7 @@ function App() {
                 onRefresh={refreshEntries}
               />
             )}
-            {view === 'new' && <NewEntry onSave={addEntry} />}
+            {view === 'new' && <NewEntry onAddEntry={addEntry} onCancel={() => setView('map')} />}
             {view === 'map' && <MapView entries={entries} />}
             {view === 'edit' && (
               <EditEntry

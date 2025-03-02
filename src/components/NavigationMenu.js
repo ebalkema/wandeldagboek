@@ -7,28 +7,32 @@ const NavigationMenu = ({ currentView, onNavigate }) => {
         className={`nav-item ${currentView === 'home' ? 'active' : ''}`} 
         onClick={() => onNavigate('home')}
       >
-        Home
+        <span className="nav-icon">🏠</span>
+        <span className="nav-text">Home</span>
       </div>
       
       <div 
         className={`nav-item ${currentView === 'list' ? 'active' : ''}`} 
         onClick={() => onNavigate('list')}
       >
-        Wandelnotities
+        <span className="nav-icon">📋</span>
+        <span className="nav-text">Notities</span>
       </div>
       
       <div 
         className={`nav-item ${currentView === 'map' ? 'active' : ''}`} 
         onClick={() => onNavigate('map')}
       >
-        Kaartweergave
+        <span className="nav-icon">🗺️</span>
+        <span className="nav-text">Kaart</span>
       </div>
       
       <div 
         className={`nav-item ${currentView === 'new' ? 'active' : ''}`} 
         onClick={() => onNavigate('new')}
       >
-        Nieuwe Notitie
+        <span className="nav-icon">➕</span>
+        <span className="nav-text">Nieuw</span>
       </div>
       
       <a 

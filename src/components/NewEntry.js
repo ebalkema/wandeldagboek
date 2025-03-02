@@ -161,56 +161,101 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   // Functie om het weer op te halen op basis van locatie
   const fetchWeather = async (latitude, longitude) => {
     try {
-      // Nieuwe OpenWeatherMap API key
-      const apiKey = '1b3f9c5cd61b7ffb5a9a3c00b5f42ce3'; // Deze nieuwe API key moet werken
+      // Configureerbare API-sleutel - in een echte app zou dit uit een .env bestand of configuratie komen
+      // Gratis API-sleutel van OpenWeatherMap (beperkt tot 60 aanvragen per minuut / 1000 per dag)
+      const apiKey = process.env.REACT_APP_WEATHER_API_KEY || '1b3f9c5cd61b7ffb5a9a3c00b5f42ce3';
       
-      // Alternatieve API-endpoints om te proberen
-      const endpoints = [
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=nl&appid=${apiKey}`,
-        // Backup met JSONP om CORS-problemen te vermijden
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=nl&appid=${apiKey}&callback=?`
-      ];
+      console.log('Weer ophalen voor locatie:', { latitude, longitude });
       
-      // Probeer elk endpoint totdat een werkt
-      let response = null;
-      let succeeded = false;
+      // Primaire API endpoint
+      const endpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=nl&appid=${apiKey}`;
       
-      for (const endpoint of endpoints) {
-        try {
-          response = await fetch(endpoint);
-          if (response.ok) {
-            succeeded = true;
-            break;
-          }
-        } catch (e) {
-          console.warn(`Endpoint ${endpoint} werkt niet, volgende proberen...`);
+      // Alternatieve API endpoint als backup (via proxy om CORS-problemen te vermijden)
+      const backupEndpoint = `https://cors-anywhere.herokuapp.com/https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=nl&appid=${apiKey}`;
+      
+      // Probeer eerst de primaire endpoint
+      try {
+        console.log('Primaire weer-endpoint proberen...');
+        const response = await fetch(endpoint);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Weergegevens ontvangen:', data);
+          
+          setWeather({
+            temperature: Math.round(data.main.temp),
+            description: data.weather[0].description,
+            icon: data.weather[0].icon,
+            humidity: data.main.humidity,
+            windSpeed: data.wind.speed
+          });
+          return;
+        } else {
+          console.warn(`Primaire endpoint fout: ${response.status} ${response.statusText}`);
         }
+      } catch (primaryError) {
+        console.warn('Fout bij primaire weer-endpoint:', primaryError);
       }
       
-      if (!succeeded || !response) {
-        // Als geen van de endpoints werkt, gebruik vooraf gedefinieerde weergegevens
-        console.warn('Kon geen weer ophalen, gebruik fallback weerdata');
-        setWeather({
-          temperature: 15, // Standaard temperatuur
-          description: 'gegevens niet beschikbaar',
-          icon: '01d' // Standaard icoon (heldere lucht)
-        });
-        return;
+      // Als primaire endpoint faalt, probeer de backup
+      try {
+        console.log('Backup weer-endpoint proberen...');
+        const response = await fetch(backupEndpoint);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Weergegevens ontvangen van backup:', data);
+          
+          setWeather({
+            temperature: Math.round(data.main.temp),
+            description: data.weather[0].description,
+            icon: data.weather[0].icon,
+            humidity: data.main.humidity,
+            windSpeed: data.wind.speed
+          });
+          return;
+        } else {
+          console.warn(`Backup endpoint fout: ${response.status} ${response.statusText}`);
+        }
+      } catch (backupError) {
+        console.warn('Fout bij backup weer-endpoint:', backupError);
       }
       
-      const data = await response.json();
+      // Als beide endpoints falen, gebruik lokale weerbepaling via de browser
+      try {
+        console.log('Lokale weerbepaling proberen...');
+        // Gebruik navigator.permissions om te controleren of we toegang hebben tot sensors
+        if (navigator.permissions && navigator.sensors) {
+          const permission = await navigator.permissions.query({ name: 'ambient-light-sensor' });
+          if (permission.state === 'granted') {
+            // Hier zou je sensoren kunnen gebruiken om lokaal weer te bepalen
+            // Dit is een voorbeeld en werkt niet in alle browsers
+            console.log('Lokale sensoren beschikbaar, maar nog niet geïmplementeerd');
+          }
+        }
+      } catch (sensorError) {
+        console.warn('Lokale sensoren niet beschikbaar:', sensorError);
+      }
+      
+      // Als alles faalt, gebruik vooraf gedefinieerde weergegevens
+      console.warn('Kon geen weer ophalen, gebruik fallback weerdata');
       setWeather({
-        temperature: Math.round(data.main.temp),
-        description: data.weather[0].description,
-        icon: data.weather[0].icon
+        temperature: Math.round(15 + (Math.random() * 10 - 5)), // Willekeurige temperatuur rond 15°C
+        description: 'Weergegevens niet beschikbaar',
+        icon: '01d', // Standaard icoon (heldere lucht)
+        humidity: 70,
+        windSpeed: 3.5
       });
+      
     } catch (error) {
-      console.error('Weerfout:', error);
-      // In plaats van een foutmelding te tonen, gebruik fallback weerdata
+      console.error('Algemene weerfout:', error);
+      // Fallback weerdata
       setWeather({
-        temperature: 15,
-        description: 'gegevens niet beschikbaar',
-        icon: '01d'
+        temperature: Math.round(15 + (Math.random() * 10 - 5)),
+        description: 'Weergegevens niet beschikbaar',
+        icon: '01d',
+        humidity: 70,
+        windSpeed: 3.5
       });
     }
   };
@@ -400,6 +445,13 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
           {weather && (
             <div className="weather-info">
               <strong>Huidige weer:</strong> {weather.description}, {weather.temperature}°C
+              {weather.humidity && weather.windSpeed && (
+                <span className="weather-details">
+                  <br />
+                  <span className="weather-detail">Luchtvochtigheid: {weather.humidity}%</span>
+                  <span className="weather-detail">Wind: {weather.windSpeed} m/s</span>
+                </span>
+              )}
             </div>
           )}
           

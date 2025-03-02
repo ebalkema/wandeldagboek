@@ -1,42 +1,56 @@
 .app {
   text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFFFF;
 }
 
 .app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   background-color: #4CAF50;
-  padding: 20px;
+  padding: 16px;
   color: white;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .app-title {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
+  font-weight: 500;
 }
 
 .podcast-link {
   color: #4CAF50;
   text-decoration: none;
-  font-weight: bold;
-  margin: 10px 0;
+  font-weight: 500;
+  margin: 8px 0;
   display: block;
+  transition: color 0.2s ease;
 }
 
 .podcast-link:hover {
+  color: #388E3C;
   text-decoration: underline;
 }
 
 .new-entry-btn {
-  margin: 20px 0;
+  margin: 16px 0;
+  width: 100%;
+  max-width: 300px;
 }
 
 .back-btn {
-  background-color: #555;
-  margin-right: 10px;
+  background-color: #757575;
+  margin-right: 8px;
 }
 
 .record-btn {
-  background-color: #f44336;
+  background-color: #F44336;
 }
 
 .record-btn.recording {
@@ -56,21 +70,179 @@
 }
 
 .location-info {
-  background-color: #f1f1f1;
-  padding: 10px;
-  border-radius: 4px;
-  margin: 10px 0;
+  background-color: #C8E6C9;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 12px 0;
+  border-left: 4px solid #4CAF50;
 }
 
 .weather-info {
   display: flex;
   align-items: center;
-  margin: 10px 0;
+  margin: 12px 0;
+  background-color: #C8E6C9;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
 }
 
 .photo-preview {
-  max-width: 100%;
+  width: 100%;
   max-height: 300px;
-  margin: 10px 0;
-  border-radius: 5px;
+  object-fit: cover;
+  margin: 12px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Container voor de hele app */
+.container {
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 16px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Formulier elementen */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333333;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* Knoppen */
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+button:hover {
+  background-color: #388E3C;
+}
+
+button.secondary {
+  background-color: white;
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+  box-shadow: none;
+}
+
+button.secondary:hover {
+  background-color: #C8E6C9;
+}
+
+button.danger {
+  background-color: #F44336;
+}
+
+button.danger:hover {
+  background-color: #D32F2F;
+}
+
+/* Kaarten */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #E0E0E0;
+}
+
+/* Media queries voor grotere schermen */
+@media (min-width: 600px) {
+  .container {
+    padding: 0 24px;
+    max-width: 600px;
+  }
+  
+  .app-header {
+    flex-direction: row;
+  }
+  
+  .new-entry-btn {
+    width: auto;
+  }
+}
+
+@media (min-width: 960px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
+/* Dark mode */
+.dark-mode {
+  background-color: #121212;
+  color: #E0E0E0;
+}
+
+.dark-mode .app-header {
+  background-color: #388E3C;
+}
+
+.dark-mode .card {
+  background-color: #1E1E1E;
+  border-color: #424242;
+}
+
+.dark-mode .form-control {
+  background-color: #1E1E1E;
+  border-color: #424242;
+  color: #E0E0E0;
+}
+
+.dark-mode .form-group label {
+  color: #E0E0E0;
+}
+
+.dark-mode .location-info,
+.dark-mode .weather-info {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-left-color: #4CAF50;
+}
+
+.dark-mode button.secondary {
+  background-color: transparent;
+  color: #C8E6C9;
+  border-color: #C8E6C9;
+}
+
+.dark-mode button.secondary:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.dark-mode .podcast-link {
+  color: #C8E6C9;
 } 
