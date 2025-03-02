@@ -30,4 +30,4 @@ Open [http://localhost:3000](http://localhost:3000) om het in de browser te beki
 
 ## Links
 
-Meer inspiratie? Luister de Menno en Erwin podcast! [www.mennoenerwin.nl](http://www.mennoenerwin.nl) 
+<!-- Verwijder de podcastlink hier --> 

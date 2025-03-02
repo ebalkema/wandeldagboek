@@ -65,15 +65,6 @@ function App() {
       </header>
       
       <div className="container">
-        <a 
-          href="http://www.mennoenerwin.nl" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="podcast-link"
-        >
-          Meer inspiratie? Luister de Menno en Erwin podcast!
-        </a>
-
         <NavigationMenu currentView={view} onNavigate={setView} />
         
         {renderContent()}

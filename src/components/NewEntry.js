@@ -319,11 +319,6 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
     onAddEntry(newEntry);
   };
 
-  // Knop om naar Menno en Erwin website te gaan
-  const goToMennoEnErwin = () => {
-    window.open('http://www.mennoenerwin.nl', '_blank');
-  };
-
   return (
     <div className="new-entry card">
       <h2>Nieuwe Wandelnotitie</h2>
@@ -425,15 +420,6 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
               <p className="note-help">De getranscribeerde audio is automatisch toegevoegd aan de aantekeningen.</p>
             </div>
           )}
-          
-          <div className="form-group">
-            <button
-              onClick={goToMennoEnErwin}
-              className="secondary"
-            >
-              Vraag het Menno
-            </button>
-          </div>
           
           <div className="form-actions">
             <button 
