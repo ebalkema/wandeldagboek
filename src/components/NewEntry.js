@@ -10,7 +10,8 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   const [photo, setPhoto] = useState(null);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const [showPhotoPrompt, setShowPhotoPrompt] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isRecognizing, setIsRecognizing] = useState(false);
@@ -20,31 +21,13 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   const audioChunksRef = useRef([]);
   const recognitionRef = useRef(null);
 
-  // Effect voor het ophalen van de locatie bij het laden van de component
+  // Effect voor het initialiseren van de spraakherkenning bij het laden van de component
   useEffect(() => {
     // Initialiseer de SpeechRecognition API als die beschikbaar is
     initSpeechRecognition();
     
-    // Vraag om locatietoestemming en haal locatie op
-    if (navigator.geolocation) {
-      setLoading(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ latitude, longitude });
-          fetchWeather(latitude, longitude);
-          fetchLocationName(latitude, longitude);
-          setLoading(false);
-        },
-        (err) => {
-          console.error('Locatiefout:', err);
-          setError('Kan locatie niet verkrijgen. Zorg dat je locatietoegang hebt ingeschakeld.');
-          setLoading(false);
-        }
-      );
-    } else {
-      setError('Geolocation wordt niet ondersteund door deze browser.');
-    }
+    // Start het ophalen van locatie en weer op de achtergrond
+    fetchLocationAndWeather();
     
     // Cleanup functie voor SpeechRecognition
     return () => {
@@ -53,6 +36,29 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       }
     };
   }, []);
+
+  // Functie om locatie en weer op de achtergrond op te halen
+  const fetchLocationAndWeather = () => {
+    if (navigator.geolocation) {
+      setIsLoadingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ latitude, longitude });
+          fetchWeather(latitude, longitude);
+          fetchLocationName(latitude, longitude);
+          setIsLoadingLocation(false);
+        },
+        (err) => {
+          console.error('Locatiefout:', err);
+          setError('Kan locatie niet verkrijgen. Zorg dat je locatietoegang hebt ingeschakeld.');
+          setIsLoadingLocation(false);
+        }
+      );
+    } else {
+      setError('Geolocation wordt niet ondersteund door deze browser.');
+    }
+  };
 
   // Initialiseer de Speech Recognition API
   const initSpeechRecognition = () => {
@@ -160,6 +166,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
 
   // Functie om het weer op te halen op basis van locatie
   const fetchWeather = async (latitude, longitude) => {
+    setIsLoadingWeather(true);
     try {
       // Configureerbare API-sleutel - in een echte app zou dit uit een .env bestand of configuratie komen
       // Gratis API-sleutel van OpenWeatherMap (beperkt tot 60 aanvragen per minuut / 1000 per dag)
@@ -189,6 +196,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
             humidity: data.main.humidity,
             windSpeed: data.wind.speed
           });
+          setIsLoadingWeather(false);
           return;
         } else {
           console.warn(`Primaire endpoint fout: ${response.status} ${response.statusText}`);
@@ -213,6 +221,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
             humidity: data.main.humidity,
             windSpeed: data.wind.speed
           });
+          setIsLoadingWeather(false);
           return;
         } else {
           console.warn(`Backup endpoint fout: ${response.status} ${response.statusText}`);
@@ -257,6 +266,8 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
         humidity: 70,
         windSpeed: 3.5
       });
+    } finally {
+      setIsLoadingWeather(false);
     }
   };
 
@@ -287,6 +298,11 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       if (recognitionRef.current) {
         setTranscript('');
         recognitionRef.current.start();
+      }
+      
+      // Als we nog geen locatie hebben, probeer deze nu op te halen
+      if (!location) {
+        fetchLocationAndWeather();
       }
     } catch (error) {
       console.error('Opnamefout:', error);
@@ -421,130 +437,133 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       
       {error && <p className="error">{error}</p>}
       
-      {loading ? (
-        <p>Locatie en weer worden opgehaald...</p>
-      ) : (
-        <div>
-          {location && (
-            <div className="location-info">
-              <p>
-                <strong>Jouw locatie:</strong>{' '}
-                {locationName ? (
-                  <>
-                    <span className="location-name">{locationName}</span>
-                    <br />
-                    <span className="location-coords">({location.latitude.toFixed(4)}, {location.longitude.toFixed(4)})</span>
-                  </>
-                ) : (
-                  `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
-                )}
-              </p>
-            </div>
-          )}
-          
-          {weather && (
-            <div className="weather-info">
-              <strong>Huidige weer:</strong> {weather.description}, {weather.temperature}°C
-              {weather.humidity && weather.windSpeed && (
-                <span className="weather-details">
-                  <br />
-                  <span className="weather-detail">Luchtvochtigheid: {weather.humidity}%</span>
-                  <span className="weather-detail">Wind: {weather.windSpeed} m/s</span>
-                </span>
+      <div>
+        <div className="form-group">
+          <h3>Spraaknotitie</h3>
+          {!audioURL ? (
+            <div>
+              <button 
+                className={`record-btn ${isRecording ? 'recording' : ''}`} 
+                onClick={isRecording ? stopRecording : startRecording}
+              >
+                {isRecording ? 'Stop Opname' : 'Start Opname'}
+              </button>
+              
+              {isRecording && (
+                <div className="recording-indicator">
+                  <span className="pulse"></span> Opname loopt...
+                  {isRecognizing && (
+                    <p className="transcribing-status">Spraak wordt herkend</p>
+                  )}
+                </div>
               )}
             </div>
-          )}
-          
-          <div className="form-group">
-            <h3>Spraaknotitie</h3>
-            {!audioURL ? (
-              <div>
-                <button 
-                  className={`record-btn ${isRecording ? 'recording' : ''}`} 
-                  onClick={isRecording ? stopRecording : startRecording}
-                >
-                  {isRecording ? 'Stop Opname' : 'Start Opname'}
-                </button>
-                
-                {isRecording && (
-                  <div className="recording-indicator">
-                    <span className="pulse"></span> Opname loopt...
-                    {isRecognizing && (
-                      <p className="transcribing-status">Spraak wordt herkend</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="entry-audio">
-                <p>Spraaknotitie opgenomen:</p>
-                <audio controls src={audioURL} />
-                
-                {transcript && (
-                  <div className="transcript-preview">
-                    <h4>Getranscribeerde audio:</h4>
-                    <p className="transcript-text">{transcript}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          
-          {showPhotoPrompt && (
-            <div className="form-group">
-              <h3>Wil je ook een foto toevoegen?</h3>
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handlePhotoChange} 
-                id="photo-upload"
-                name="photo-upload"
-              />
-              {photo && (
-                <div>
-                  <p>Foto preview:</p>
-                  <img 
-                    src={photo} 
-                    alt="Upload preview" 
-                    className="photo-preview"
-                  />
+          ) : (
+            <div className="entry-audio">
+              <p>Spraaknotitie opgenomen:</p>
+              <audio controls src={audioURL} />
+              
+              {transcript && (
+                <div className="transcript-preview">
+                  <h4>Getranscribeerde audio:</h4>
+                  <p className="transcript-text">{transcript}</p>
                 </div>
               )}
             </div>
           )}
-          
-          {audioURL && (
-            <div className="form-group">
-              <h3>Extra aantekeningen</h3>
-              <textarea
-                rows="4"
-                placeholder="Voeg eventueel extra aantekeningen toe..."
-                value={notes}
-                onChange={handleNotesChange}
-                id="notes-textarea"
-                name="notes"
-                autoComplete="off"
-              ></textarea>
-              <p className="note-help">De getranscribeerde audio is automatisch toegevoegd aan de aantekeningen.</p>
-            </div>
-          )}
-          
-          <div className="form-actions">
-            <button 
-              className="back-btn" 
-              onClick={onCancel}
-            >
-              Annuleren
-            </button>
-            <button 
-              onClick={handleSave}
-              disabled={!audioURL}
-            >
-              Opslaan
-            </button>
-          </div>
         </div>
-      )}
+        
+        {/* Locatie en weer informatie (wordt op de achtergrond geladen) */}
+        {location && (
+          <div className="location-info">
+            <p>
+              <strong>Jouw locatie:</strong>{' '}
+              {locationName ? (
+                <>
+                  <span className="location-name">{locationName}</span>
+                  <br />
+                  <span className="location-coords">({location.latitude.toFixed(4)}, {location.longitude.toFixed(4)})</span>
+                </>
+              ) : (
+                <>
+                  {isLoadingLocation ? 'Locatienaam wordt opgehaald...' : `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`}
+                </>
+              )}
+            </p>
+          </div>
+        )}
+        
+        {weather ? (
+          <div className="weather-info">
+            <strong>Huidige weer:</strong> {weather.description}, {weather.temperature}°C
+            {weather.humidity && weather.windSpeed && (
+              <span className="weather-details">
+                <br />
+                <span className="weather-detail">Luchtvochtigheid: {weather.humidity}%</span>
+                <span className="weather-detail">Wind: {weather.windSpeed} m/s</span>
+              </span>
+            )}
+          </div>
+        ) : isLoadingWeather ? (
+          <div className="weather-info">
+            <strong>Weer:</strong> Weergegevens worden opgehaald...
+          </div>
+        ) : null}
+        
+        {showPhotoPrompt && (
+          <div className="form-group">
+            <h3>Wil je ook een foto toevoegen?</h3>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handlePhotoChange} 
+              id="photo-upload"
+              name="photo-upload"
+            />
+            {photo && (
+              <div>
+                <p>Foto preview:</p>
+                <img 
+                  src={photo} 
+                  alt="Upload preview" 
+                  className="photo-preview"
+                />
+              </div>
+            )}
+          </div>
+        )}
+        
+        {audioURL && (
+          <div className="form-group">
+            <h3>Extra aantekeningen</h3>
+            <textarea
+              rows="4"
+              placeholder="Voeg eventueel extra aantekeningen toe..."
+              value={notes}
+              onChange={handleNotesChange}
+              id="notes-textarea"
+              name="notes"
+              autoComplete="off"
+            ></textarea>
+            <p className="note-help">De getranscribeerde audio is automatisch toegevoegd aan de aantekeningen.</p>
+          </div>
+        )}
+        
+        <div className="form-actions">
+          <button 
+            className="back-btn" 
+            onClick={onCancel}
+          >
+            Annuleren
+          </button>
+          <button 
+            onClick={handleSave}
+            disabled={!audioURL}
+          >
+            Opslaan
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
