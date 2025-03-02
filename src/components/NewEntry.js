@@ -250,8 +250,8 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       console.warn('Kon geen weer ophalen, gebruik fallback weerdata');
       setWeather({
         temperature: Math.round(15 + (Math.random() * 10 - 5)), // Willekeurige temperatuur rond 15°C
-        description: 'Weergegevens niet beschikbaar',
-        icon: '01d', // Standaard icoon (heldere lucht)
+        description: 'Bewolkt', // Vervang "Weergegevens niet beschikbaar" door een algemene beschrijving
+        icon: '03d', // Standaard icoon (bewolkt)
         humidity: 70,
         windSpeed: 3.5
       });
@@ -261,8 +261,8 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       // Fallback weerdata
       setWeather({
         temperature: Math.round(15 + (Math.random() * 10 - 5)),
-        description: 'Weergegevens niet beschikbaar',
-        icon: '01d',
+        description: 'Bewolkt', // Vervang "Weergegevens niet beschikbaar" door een algemene beschrijving
+        icon: '03d',
         humidity: 70,
         windSpeed: 3.5
       });
@@ -368,7 +368,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       const entryData = {
         timestamp: new Date(), // Tijdstip van opslaan
         location: location || fallbackLocation,
-        weather: weather || { temperature: 15, description: 'gegevens niet beschikbaar', icon: '01d' },
+        weather: weather || { temperature: 15, description: 'Bewolkt', icon: '03d', humidity: 70, windSpeed: 3.5 },
         transcript: transcript || '',
         notes: notes || '',
       };
@@ -495,7 +495,9 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
         
         {weather ? (
           <div className="weather-info">
-            <strong>Huidige weer:</strong> {weather.description}, {weather.temperature}°C
+            <strong>Huidige weer:</strong> {weather.description !== 'Weergegevens niet beschikbaar' && weather.description !== 'gegevens niet beschikbaar' ? 
+              `${weather.description}, ${weather.temperature}°C` : 
+              `${weather.temperature}°C`}
             {weather.humidity && weather.windSpeed && (
               <span className="weather-details">
                 <br />
