@@ -1,47 +1,33 @@
 {
   "short_name": "Wandeldagboek",
-  "name": "Wandeldagboek App",
-  "description": "Een app om je wandelingen bij te houden inclusief weer, locatie, foto's, audio en vogel-observaties",
+  "name": "Wandeldagboek - Jouw persoonlijke wandelervaringen",
+  "description": "Leg je wandelervaringen vast met audio, foto's, locatie en weer",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "images/favicon.svg",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    },
-    {
-      "src": "maskable_icon.png",
-      "type": "image/png",
+      "src": "images/logo.svg",
+      "type": "image/svg+xml",
       "sizes": "512x512",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#22543d",
-  "background_color": "#f7f7f7",
-  "categories": ["sports", "lifestyle", "health", "travel"],
+  "theme_color": "#4CAF50",
+  "background_color": "#ffffff",
+  "categories": ["lifestyle", "health", "fitness", "travel"],
   "screenshots": [
     {
-      "src": "screenshot1.png",
-      "sizes": "320x568",
-      "type": "image/png"
-    },
-    {
-      "src": "screenshot2.png",
-      "sizes": "320x568",
-      "type": "image/png"
+      "src": "images/og-image.svg",
+      "type": "image/svg+xml",
+      "sizes": "1200x630"
     }
   ],
   "prefer_related_applications": false,

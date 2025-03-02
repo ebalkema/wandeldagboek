@@ -7,7 +7,7 @@ const NavigationMenu = ({ currentView, onNavigate }) => {
         className={`nav-item ${currentView === 'home' ? 'active' : ''}`} 
         onClick={() => onNavigate('home')}
       >
-        <span className="nav-icon">🏠</span>
+        <span className="nav-icon">🏡</span>
         <span className="nav-text">Home</span>
       </div>
       
@@ -31,8 +31,8 @@ const NavigationMenu = ({ currentView, onNavigate }) => {
         className={`nav-item ${currentView === 'new' ? 'active' : ''}`} 
         onClick={() => onNavigate('new')}
       >
-        <span className="nav-icon">➕</span>
-        <span className="nav-text">Nieuw</span>
+        <span className="nav-icon">✏️</span>
+        <span className="nav-text">Nieuwe notitie</span>
       </div>
       
       <a 
@@ -41,7 +41,8 @@ const NavigationMenu = ({ currentView, onNavigate }) => {
         rel="noopener noreferrer" 
         className="nav-item external-link"
       >
-        Mennoenerwin.nl
+        <span className="nav-icon">🌐</span>
+        <span className="nav-text">Mennoenerwin.nl</span>
       </a>
     </nav>
   );

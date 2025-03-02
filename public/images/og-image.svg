@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Achtergrond -->
+  <rect width="1200" height="630" fill="#f5f5f5" />
+  
+  <!-- Groene golf decoratie -->
+  <path d="M0 430 Q300 330 600 430 Q900 530 1200 430 L1200 630 L0 630 Z" fill="#4CAF50" opacity="0.8" />
+  <path d="M0 460 Q300 360 600 460 Q900 560 1200 460 L1200 630 L0 630 Z" fill="#2E7D32" opacity="0.9" />
+  
+  <!-- Logo (links) -->
+  <g transform="translate(200, 315) scale(0.8)">
+    <!-- Bergen -->
+    <path d="M96 320 L192 180 L288 280 L384 200 L480 320 Z" fill="#4CAF50" opacity="0.8" />
+    <path d="M32 320 L128 220 L224 280 L320 180 L416 240 L512 320 Z" fill="#2E7D32" opacity="0.9" />
+    
+    <!-- Wandelpad -->
+    <path d="M120 320 Q180 280 200 300 Q240 340 280 280 Q320 220 380 260 Q420 290 440 320" 
+          fill="none" stroke="#795548" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1, 12" />
+    
+    <!-- Kompas -->
+    <circle cx="256" cy="160" r="60" fill="white" stroke="#455A64" stroke-width="4" />
+    <circle cx="256" cy="160" r="50" fill="none" stroke="#455A64" stroke-width="2" />
+    <path d="M256 120 L256 140 M256 180 L256 200 M216 160 L236 160 M276 160 L296 160" 
+          stroke="#455A64" stroke-width="2" />
+    <path d="M256 160 L236 130" stroke="#455A64" stroke-width="3" />
+    <path d="M256 160 L276 190" stroke="#E53935" stroke-width="3" />
+    <circle cx="256" cy="160" r="5" fill="#455A64" />
+  </g>
+  
+  <!-- Tekst (rechts) -->
+  <g transform="translate(650, 250)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#2E7D32">WANDELDAGBOEK</text>
+    <text x="0" y="80" font-family="Arial, sans-serif" font-size="36" fill="#455A64">Jouw persoonlijke</text>
+    <text x="0" y="130" font-family="Arial, sans-serif" font-size="36" fill="#455A64">wandelervaringen</text>
+    
+    <text x="0" y="200" font-family="Arial, sans-serif" font-size="24" fill="#4CAF50">✓ Audio opnames</text>
+    <text x="0" y="240" font-family="Arial, sans-serif" font-size="24" fill="#4CAF50">✓ Foto's</text>
+    <text x="0" y="280" font-family="Arial, sans-serif" font-size="24" fill="#4CAF50">✓ Locatie en weer</text>
+  </g>
+</svg> 

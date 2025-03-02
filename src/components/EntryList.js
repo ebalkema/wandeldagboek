@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
   // Toegevoegde staten voor filteren en sorteren
@@ -6,6 +6,16 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [sortOrder, setSortOrder] = useState('newest'); // 'newest' of 'oldest'
   const [showFilters, setShowFilters] = useState(false);
+  const [animatedEntries, setAnimatedEntries] = useState([]);
+  
+  // Effect voor het geleidelijk laden van entries voor een mooie animatie
+  useEffect(() => {
+    setAnimatedEntries([]);
+    const timer = setTimeout(() => {
+      setAnimatedEntries(filteredEntries.map(entry => entry.id));
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [entries, searchTerm, categoryFilter, sortOrder]);
   
   // Verzamelen van alle unieke categorieën in de entries
   const uniqueCategories = [...new Set(
@@ -17,11 +27,12 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
   // Filter en sorteer entries
   const filteredEntries = entries
     .filter(entry => {
-      // Filter op zoekopdracht (in aantekeningen, locatienaam)
+      // Filter op zoekopdracht (in aantekeningen, locatienaam, titel)
       const searchMatch = !searchTerm || 
         (entry.notes && entry.notes.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (entry.location && entry.location.name && 
-         entry.location.name.toLowerCase().includes(searchTerm.toLowerCase()));
+         entry.location.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (entry.title && entry.title.toLowerCase().includes(searchTerm.toLowerCase()));
       
       // Filter op categorie
       const categoryMatch = !categoryFilter || entry.category === categoryFilter;
@@ -44,7 +55,11 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
   if (entries.length === 0) {
     return (
       <div className="entry-list">
-        <p>Nog geen wandelnotities. Maak je eerste notitie!</p>
+        <div className="empty-state">
+          <div className="empty-state-icon">📝</div>
+          <h3>Nog geen wandelnotities</h3>
+          <p>Begin met het vastleggen van je wandelervaringen door op 'Nieuwe notitie' te klikken.</p>
+        </div>
       </div>
     );
   }
@@ -54,8 +69,8 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
     return (
       <div className="entry-list">
         <div className="loading-entries">
-          <span className="loading-spinner"></span>
-          <span>Wandelnotities laden...</span>
+          <div className="loading-spinner"></div>
+          <p>Wandelnotities laden...</p>
         </div>
       </div>
     );
@@ -117,16 +132,31 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
       );
     }
     
+    // Bepaal het juiste weer-icoon
+    const getWeatherIcon = (description) => {
+      const desc = description.toLowerCase();
+      if (desc.includes('zon') || desc.includes('helder') || desc.includes('clear')) return '☀️';
+      if (desc.includes('wolk') || desc.includes('bewolkt') || desc.includes('cloud')) return '☁️';
+      if (desc.includes('regen') || desc.includes('rain')) return '🌧️';
+      if (desc.includes('onweer') || desc.includes('thunder')) return '⛈️';
+      if (desc.includes('sneeuw') || desc.includes('snow')) return '❄️';
+      if (desc.includes('mist') || desc.includes('fog')) return '🌫️';
+      return '🌤️'; // Standaard icoon
+    };
+    
     return (
       <div className="weather-info">
-        <div>
-          <strong>Weer: </strong>
-          {weatherData.description}, {weatherData.temperature}°C
+        <div className="weather-main">
+          <span className="weather-icon">{getWeatherIcon(weatherData.description)}</span>
+          <span className="weather-description">
+            <strong>{weatherData.description}</strong>
+            <span className="weather-temp">{weatherData.temperature}°C</span>
+          </span>
         </div>
         {weatherData.humidity && weatherData.windSpeed && (
           <div className="weather-details">
-            <span className="weather-detail">Luchtvochtigheid: {weatherData.humidity}%</span>
-            <span className="weather-detail">Wind: {weatherData.windSpeed} m/s</span>
+            <span className="weather-detail">💧 {weatherData.humidity}%</span>
+            <span className="weather-detail">💨 {weatherData.windSpeed} m/s</span>
           </div>
         )}
       </div>
@@ -147,20 +177,32 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
     setShowFilters(false);
   };
 
+  // Bepaal categorie-icoon
+  const getCategoryIcon = (category) => {
+    if (!category) return null;
+    
+    const categoryMap = {
+      'Bos': '🌳',
+      'Strand': '🏖️',
+      'Berg': '⛰️',
+      'Park': '🏞️',
+      'Stad': '🏙️',
+      'Platteland': '🌾',
+      'Rivier': '🏞️',
+      'Meer': '💦',
+      'Heide': '🌿',
+      'Duinen': '🏝️'
+    };
+    
+    return categoryMap[category] || '🚶';
+  };
+
   return (
     <div className="entry-list">
-      {/* Breadcrumbs voor navigatie */}
-      <ul className="breadcrumbs">
-        <li><button 
-              className="breadcrumb-link" 
-              onClick={(e) => { e.preventDefault(); /* navigeer naar home */ }}
-            >Home</button></li>
-        <li className="current">Wandelnotities</li>
-      </ul>
-      
       {/* Zoek- en filterbalk */}
       <div className="search-and-filters">
         <div className="search-input">
+          <span className="search-icon">🔍</span>
           <input
             type="text"
             placeholder="Zoek in je notities..."
@@ -168,30 +210,29 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm('')} title="Zoekopdracht wissen">
+            <button 
+              className="clear-search" 
+              onClick={() => setSearchTerm('')} 
+              title="Zoekopdracht wissen"
+            >
               ✕
             </button>
           )}
         </div>
         
         <button 
-          className="filters-toggle" 
+          className={`filters-toggle ${showFilters ? 'active' : ''}`}
           onClick={() => setShowFilters(!showFilters)}
         >
-          {showFilters ? 'Filters verbergen' : 'Filters tonen'} {showFilters ? '▲' : '▼'}
+          <span className="filter-icon">🔍</span>
+          {showFilters ? 'Filters verbergen' : 'Filters tonen'}
         </button>
-        
-        {(searchTerm || categoryFilter) && (
-          <button className="clear-filters" onClick={clearFilters}>
-            Alles wissen
-          </button>
-        )}
       </div>
       
       {/* Uitgebreide filters (zichtbaar wanneer showFilters = true) */}
       {showFilters && (
         <div className="filters-container">
-          <div>
+          <div className="filter-group">
             <label htmlFor="categoryFilter">Categorie:</label>
             <select 
               id="categoryFilter" 
@@ -200,12 +241,14 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
             >
               <option value="">Alle categorieën</option>
               {uniqueCategories.map(category => (
-                <option key={category} value={category}>{category}</option>
+                <option key={category} value={category}>
+                  {getCategoryIcon(category)} {category}
+                </option>
               ))}
             </select>
           </div>
           
-          <div>
+          <div className="filter-group">
             <label htmlFor="sortOrder">Sorteren:</label>
             <select 
               id="sortOrder" 
@@ -216,136 +259,121 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
               <option value="oldest">Oudste eerst</option>
             </select>
           </div>
+          
+          {(searchTerm || categoryFilter) && (
+            <button className="clear-filters" onClick={clearFilters}>
+              Filters wissen
+            </button>
+          )}
         </div>
       )}
       
-      <h2>Jouw Wandelnotities {filteredEntries.length !== entries.length && `(${filteredEntries.length} van ${entries.length})`}</h2>
+      <h2 className="entries-title">
+        <span className="title-icon">📋</span>
+        Jouw Wandelnotities 
+        {filteredEntries.length !== entries.length && (
+          <span className="filter-count">({filteredEntries.length} van {entries.length})</span>
+        )}
+      </h2>
       
       {filteredEntries.length === 0 ? (
-        <p>Geen notities gevonden die aan je zoekcriteria voldoen.</p>
+        <div className="no-results">
+          <div className="no-results-icon">🔍</div>
+          <p>Geen notities gevonden die aan je zoekcriteria voldoen.</p>
+          <button className="clear-filters" onClick={clearFilters}>
+            Filters wissen
+          </button>
+        </div>
       ) : (
-        filteredEntries.map((entry) => (
-          <div key={entry.id} className="entry-item card">
-            <div className="entry-header">
-              <h3>{entry.title || formatDate(entry.timestamp || entry.createdAt)}</h3>
-              {entry.title && <span className="entry-date">{formatDate(entry.timestamp || entry.createdAt)}</span>}
-              <div className="entry-actions">
-                {entry.location && (
+        <div className="entries-grid">
+          {filteredEntries.map((entry) => (
+            <div 
+              key={entry.id} 
+              className={`entry-item card ${animatedEntries.includes(entry.id) ? 'animated' : ''}`}
+            >
+              <div className="entry-header">
+                <div className="entry-title-container">
+                  <h3>{entry.title || formatDate(entry.timestamp || entry.createdAt)}</h3>
+                  {entry.title && <span className="entry-date">{formatDate(entry.timestamp || entry.createdAt)}</span>}
+                  {entry.category && (
+                    <span className="entry-category">
+                      {getCategoryIcon(entry.category)} {entry.category}
+                    </span>
+                  )}
+                </div>
+                <div className="entry-actions">
                   <button 
-                    className="view-on-map-btn"
-                    onClick={() => viewOnMap(entry)}
-                    title="Bekijk op kaart"
+                    className="action-btn edit-btn"
+                    onClick={() => onEdit(entry)}
+                    title="Bewerk deze notitie"
                   >
-                    🗺️ Op kaart
+                    <span className="action-icon">✏️</span>
                   </button>
-                )}
-                <button 
-                  className="secondary-btn"
-                  onClick={() => onEdit(entry)}
-                  title="Bewerk deze notitie"
-                >
-                  ✏️ Bewerken
-                </button>
-                <button 
-                  className="danger-btn" 
-                  onClick={() => onDelete(entry.id)}
-                  title="Verwijder deze notitie"
-                >
-                  Verwijderen
-                </button>
-              </div>
-            </div>
-            
-            {entry.category && (
-              <div className="entry-category">
-                <span className={`category-tag ${entry.category}`}>{entry.category}</span>
-              </div>
-            )}
-            
-            <div className="entry-meta">
-              <p>
-                <strong>Locatie: </strong>
-                {entry.location ? (
-                  <>
-                    {entry.location.name ? (
-                      <>
-                        <span className="location-name">{entry.location.name}</span>
-                        <br />
-                        <span className="location-coords">({entry.location.latitude.toFixed(4)}, {entry.location.longitude.toFixed(4)})</span>
-                      </>
-                    ) : (
-                      `${entry.location.latitude.toFixed(4)}, ${entry.location.longitude.toFixed(4)}`
-                    )}
-                  </>
-                ) : 'Onbekend'}
-              </p>
-              
-              {renderWeather(entry.weather)}
-            </div>
-            
-            {entry.audioUrl && (
-              <div className="entry-audio">
-                <p>
-                  <strong>Spraaknotitie:</strong>
-                  <a 
-                    href={entry.audioUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="media-link"
-                    title="Open audio in nieuw tabblad"
+                  <button 
+                    className="action-btn delete-btn" 
+                    onClick={() => onDelete(entry.id)}
+                    title="Verwijder deze notitie"
                   >
-                    🔗 Audio openen
-                  </a>
-                </p>
-                <audio controls src={entry.audioUrl} />
+                    <span className="action-icon">🗑️</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="entry-content">
+                {entry.location && entry.location.name && (
+                  <div className="location-info">
+                    <div className="location-name">
+                      <span className="location-icon">📍</span> {entry.location.name}
+                    </div>
+                    {entry.location.latitude && entry.location.longitude && (
+                      <div className="location-coords">
+                        {entry.location.latitude.toFixed(5)}, {entry.location.longitude.toFixed(5)}
+                        <button 
+                          className="view-on-map-btn"
+                          onClick={() => viewOnMap(entry)}
+                          title="Bekijk op kaart"
+                        >
+                          <span className="map-icon">🗺️</span> Op kaart
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
                 
-                {entry.transcript && (
-                  <div className="entry-transcript">
-                    <p><strong>Getranscribeerde audio:</strong></p>
-                    <p className="transcript-text">{entry.transcript}</p>
+                {entry.weather && renderWeather(entry.weather)}
+                
+                {entry.notes && (
+                  <div className="entry-notes">
+                    <p>{entry.notes}</p>
+                  </div>
+                )}
+                
+                {entry.imageUrl && (
+                  <div className="entry-image-container">
+                    <img 
+                      src={entry.imageUrl} 
+                      alt="Foto bij wandelnotitie" 
+                      className="entry-image"
+                      onClick={() => window.open(entry.imageUrl, '_blank')}
+                    />
+                  </div>
+                )}
+                
+                {entry.audioUrl && (
+                  <div className="entry-audio-container">
+                    <audio 
+                      controls 
+                      src={entry.audioUrl} 
+                      className="entry-audio"
+                    >
+                      Je browser ondersteunt geen audio-element.
+                    </audio>
                   </div>
                 )}
               </div>
-            )}
-            
-            {entry.imageUrl && (
-              <div className="entry-image-container">
-                <p>
-                  <strong>Foto:</strong>
-                  <a 
-                    href={entry.imageUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="media-link"
-                    title="Open foto in nieuw tabblad"
-                  >
-                    🔗 Foto openen
-                  </a>
-                </p>
-                <img 
-                  src={entry.imageUrl} 
-                  alt="Wandelfoto" 
-                  className="entry-image"
-                  onClick={() => window.open(entry.imageUrl, '_blank')}
-                />
-              </div>
-            )}
-            
-            {entry.notes && (
-              <div className="entry-notes">
-                <p><strong>Aantekeningen:</strong></p>
-                <p>{entry.notes}</p>
-              </div>
-            )}
-            
-            <p className="entry-timestamp">
-              <small>Opgeslagen op: {formatDate(entry.createdAt)}</small>
-              {entry.updatedAt && entry.updatedAt !== entry.createdAt && (
-                <small> (Laatst bijgewerkt: {formatDate(entry.updatedAt)})</small>
-              )}
-            </p>
-          </div>
-        ))
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

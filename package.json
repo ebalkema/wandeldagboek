@@ -42,9 +42,12 @@
     ]
   },
   "devDependencies": {
+    "canvas": "^3.1.0",
     "gh-pages": "^6.3.0",
+    "jsdom": "^26.0.0",
     "pwa-asset-generator": "^6.4.0",
     "sharp": "^0.33.5",
+    "svg-pathdata": "^7.1.0",
     "svg-to-png": "^4.0.0"
   }
 }
