@@ -24,16 +24,14 @@ const app = initializeApp(firebaseConfig);
 // Firebase diensten exporteren
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-
-// Storage met CORS configuratie
-const storage = getStorage(app);
+export const storage = getStorage(app);
 
 // Debug informatie voor Firebase connectiviteit
 console.log("Firebase initialisatie compleet");
 console.log("Auth service beschikbaar:", !!auth);
 console.log("Firestore service beschikbaar:", !!db);
 console.log("Storage service beschikbaar:", !!storage);
+console.log("Storage bucket:", storage.app.options.storageBucket);
 console.log("GitHub Pages domein:", window.location.origin);
 
-export { storage };
 export default app; 

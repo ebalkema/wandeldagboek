@@ -295,9 +295,21 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       // Verwerk audio blob als we hebben opgenomen
       let audioBlobToSave = null;
       if (audioChunksRef.current && audioChunksRef.current.length > 0) {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        console.log('Audio blob aangemaakt:', !!audioBlob);
-        audioBlobToSave = audioBlob;
+        try {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          console.log('Audio blob aangemaakt:', !!audioBlob, 'grootte:', audioBlob.size, 'type:', audioBlob.type);
+          
+          // Controleer of de blob geldig is
+          if (audioBlob.size === 0) {
+            console.error('Ongeldige audio blob: blob is leeg');
+            throw new Error('De audio-opname kon niet worden verwerkt');
+          }
+          
+          audioBlobToSave = audioBlob;
+        } catch (audioError) {
+          console.error('Fout bij verwerken audio:', audioError);
+          alert('Er is een probleem opgetreden bij het verwerken van de audio-opname. De notitie wordt opgeslagen zonder audio.');
+        }
       }
       
       // Verwerk foto indien geüpload
@@ -307,15 +319,23 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
         try {
           const response = await fetch(photo);
           const blob = await response.blob();
+          
+          // Controleer of de blob geldig is
+          if (blob.size === 0) {
+            console.error('Ongeldige afbeelding blob: blob is leeg');
+            throw new Error('De afbeelding kon niet worden verwerkt');
+          }
+          
           imageFileToSave = new File([blob], 'wandelnotitie-foto.jpg', { type: 'image/jpeg' });
-          console.log('Foto blob aangemaakt:', !!imageFileToSave);
+          console.log('Foto blob aangemaakt:', !!imageFileToSave, 'grootte:', imageFileToSave.size, 'type:', imageFileToSave.type);
         } catch (photoError) {
           console.error('Fout bij verwerken foto:', photoError);
+          alert('Er is een probleem opgetreden bij het verwerken van de foto. De notitie wordt opgeslagen zonder foto.');
         }
       }
       
       // Roep de callback aan om de entry toe te voegen
-      onAddEntry(entryData, audioBlobToSave, imageFileToSave);
+      onAddEntry(entryData, imageFileToSave, audioBlobToSave);
       
     } catch (error) {
       console.error('Fout bij opslaan:', error);

@@ -782,6 +782,59 @@ input:focus, textarea:focus {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Hero section en afbeelding */
+.hero-section {
+  text-align: center;
+  padding: 20px 0;
+  margin-bottom: 30px;
+  background-image: linear-gradient(to bottom right, #4CAF50, #2E7D32);
+  color: white;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-image {
+  width: 100%;
+  max-height: 200px;
+  overflow: hidden;
+  border-radius: 0 0 12px 12px;
+  position: relative;
+}
+
+.hero-image img {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Responsive aanpassingen voor hero section */
+@media (min-width: 600px) {
+  .hero-image {
+    max-height: 300px;
+  }
+  
+  .hero-image img {
+    max-height: 300px;
+  }
+}
+
 .hero-section, .app-description, .features, .inspiration, 
 .how-to-use, .get-started, .pwa-instructions {
   animation: fadeIn 0.8s ease-out forwards;

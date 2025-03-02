@@ -232,33 +232,50 @@ export const deleteEntry = async (entryId, entry) => {
 
 /**
  * Hulpfunctie om een afbeelding te uploaden naar Firebase Storage
- * @param {File} imageFile - De afbeelding die geüpload moet worden
+ * @param {File} imageFile - Het afbeeldingsbestand dat geüpload moet worden
  * @param {string} userId - Firebase user ID
  * @returns {Promise<string>} - URL van de geüploade afbeelding
  */
 const uploadImage = async (imageFile, userId) => {
   try {
-    console.log("Begin uploadImage functie met bestand:", imageFile.name);
+    console.log("Begin uploadImage functie met bestand:", imageFile.name, "grootte:", imageFile.size, "type:", imageFile.type);
     
+    // Controleer of het bestand geldig is
+    if (!imageFile || imageFile.size === 0) {
+      throw new Error("Ongeldig afbeeldingsbestand: bestand is leeg of niet gedefinieerd");
+    }
+    
+    // Controleer of storage is geïnitialiseerd
+    if (!storage) {
+      console.error("Firebase Storage is niet geïnitialiseerd!");
+      throw new Error("Firebase Storage is niet beschikbaar");
+    }
+    
+    // Genereer een unieke bestandsnaam met timestamp
     const timestamp = new Date().getTime();
     const storagePath = `images/${userId}/${timestamp}_${imageFile.name}`;
-    const storageRef = ref(storage, storagePath);
+    console.log("Storage pad voor upload:", storagePath);
     
-    console.log("Uploading image to Firebase Storage:", storagePath);
-    // Extra logging voor debugging
-    console.log("Storage reference created:", storageRef);
+    // Maak een reference naar de locatie in Firebase Storage
+    const storageRef = ref(storage, storagePath);
+    console.log("Storage reference aangemaakt:", storageRef);
     
     // Upload de afbeelding
+    console.log("Start uploadBytes...");
     const snapshot = await uploadBytes(storageRef, imageFile);
     console.log("Afbeelding geüpload, snapshot:", snapshot);
     
     // Haal de download URL op
+    console.log("Download URL ophalen...");
     const downloadURL = await getDownloadURL(snapshot.ref);
     console.log("Download URL verkregen:", downloadURL);
     
     return downloadURL;
   } catch (error) {
     console.error("Fout bij uploaden afbeelding:", error);
+    console.error("Error code:", error.code);
+    console.error("Error message:", error.message);
+    console.error("Error details:", error);
     throw error;
   }
 };
@@ -271,25 +288,43 @@ const uploadImage = async (imageFile, userId) => {
  */
 const uploadAudio = async (audioBlob, userId) => {
   try {
-    console.log("Begin uploadAudio functie met blob size:", audioBlob.size);
+    console.log("Begin uploadAudio functie met blob size:", audioBlob.size, "type:", audioBlob.type);
+    
+    // Controleer of de blob geldig is
+    if (!audioBlob || audioBlob.size === 0) {
+      throw new Error("Ongeldige audio blob: blob is leeg of niet gedefinieerd");
+    }
+    
+    // Controleer of storage is geïnitialiseerd
+    if (!storage) {
+      console.error("Firebase Storage is niet geïnitialiseerd!");
+      throw new Error("Firebase Storage is niet beschikbaar");
+    }
     
     const timestamp = new Date().getTime();
     const storagePath = `audio/${userId}/${timestamp}_audio.webm`;
-    const storageRef = ref(storage, storagePath);
+    console.log("Storage pad voor upload:", storagePath);
     
-    console.log("Uploading audio to Firebase Storage:", storagePath);
+    // Maak een reference naar de locatie in Firebase Storage
+    const storageRef = ref(storage, storagePath);
+    console.log("Storage reference aangemaakt:", storageRef);
     
     // Upload de audio blob
+    console.log("Start uploadBytes...");
     const snapshot = await uploadBytes(storageRef, audioBlob);
     console.log("Audio geüpload, snapshot:", snapshot);
     
     // Haal de download URL op
+    console.log("Download URL ophalen...");
     const downloadURL = await getDownloadURL(snapshot.ref);
     console.log("Download URL verkregen:", downloadURL);
     
     return downloadURL;
   } catch (error) {
     console.error("Fout bij uploaden audio:", error);
+    console.error("Error code:", error.code);
+    console.error("Error message:", error.message);
+    console.error("Error details:", error);
     throw error;
   }
 };

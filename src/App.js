@@ -15,7 +15,6 @@ import { fetchEntries, addEntry as addEntryToFirestore, deleteEntry as deleteEnt
 const MEBanner = () => (
   <div className="me-banner">
     <img src="https://placehold.co/200x50/4CAF50/ffffff?text=Wandeldagboek" alt="Wandeldagboek Logo" />
-    <h2>Wandeldagboek</h2>
   </div>
 );
 
@@ -144,8 +143,8 @@ function App() {
   const addEntry = async (entryData, imageFile, audioBlob) => {
     console.log('App.js: addEntry functie aangeroepen', { 
       data: entryData,
-      imageFile: imageFile ? `${imageFile.name} (${imageFile.size} bytes)` : 'Geen',
-      audioBlob: audioBlob ? `Audio blob (${audioBlob.size} bytes)` : 'Geen'
+      imageFile: imageFile ? `${imageFile.name} (${imageFile.size} bytes, type: ${imageFile.type})` : 'Geen',
+      audioBlob: audioBlob ? `Audio blob (${audioBlob.size} bytes, type: ${audioBlob.type})` : 'Geen'
     });
     
     try {
@@ -166,6 +165,19 @@ function App() {
       // Gebruik de userId van de ingelogde gebruiker
       const userId = user.uid;
       console.log('Gebruiker geïdentificeerd:', userId);
+      
+      // Controleer of de bestanden geldig zijn
+      if (imageFile && imageFile.size === 0) {
+        console.error('Ongeldig afbeeldingsbestand: bestand is leeg');
+        showToast('De afbeelding kon niet worden verwerkt. Probeer een andere afbeelding.', 'error');
+        return null;
+      }
+      
+      if (audioBlob && audioBlob.size === 0) {
+        console.error('Ongeldige audio blob: blob is leeg');
+        showToast('De audio-opname kon niet worden verwerkt. Probeer opnieuw op te nemen.', 'error');
+        return null;
+      }
       
       console.log('App.js: Firebase addEntryToFirestore aanroepen...');
       
@@ -190,12 +202,16 @@ function App() {
         return savedEntry;
       } catch (firestoreError) {
         console.error('Fout bij het opslaan in Firestore:', firestoreError);
+        console.error('Error code:', firestoreError.code);
+        console.error('Error message:', firestoreError.message);
         
         // Specifieke foutafhandeling voor verschillende soorten fouten
         if (firestoreError.code === 'permission-denied') {
           showToast('Je hebt geen toestemming om gegevens op te slaan. Controleer of je correct bent ingelogd en of de Firestore beveiligingsregels correct zijn ingesteld.', 'error');
         } else if (firestoreError.code === 'unavailable') {
           showToast('Firebase Firestore is momenteel niet beschikbaar. Controleer je internetverbinding en probeer het later opnieuw.', 'error');
+        } else if (firestoreError.code === 'storage/unauthorized') {
+          showToast('Je hebt geen toestemming om bestanden te uploaden naar Firebase Storage. Controleer de beveiligingsregels.', 'error');
         } else {
           showToast(`Fout bij het opslaan: ${firestoreError.message || 'Onbekende fout'}`, 'error');
         }
@@ -204,6 +220,7 @@ function App() {
       }
     } catch (error) {
       console.error('Error adding entry:', error);
+      console.error('Error details:', error);
       showToast(`Fout bij het opslaan van de notitie: ${error.message || 'Onbekende fout'}`, 'error');
       return null;
     }
