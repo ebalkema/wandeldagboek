@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Achtergrond cirkel -->
+  <circle cx="256" cy="256" r="240" fill="#4CAF50" />
+  
+  <!-- Bergen (vereenvoudigd) -->
+  <path d="M96 320 L192 180 L288 280 L384 200 L480 320 Z" fill="#2E7D32" />
+  
+  <!-- Wandelpad (vereenvoudigd) -->
+  <path d="M120 320 Q180 280 200 300 Q240 340 280 280 Q320 220 380 260 Q420 290 440 320" 
+        fill="none" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1, 12" />
+  
+  <!-- Kompas (vereenvoudigd) -->
+  <circle cx="256" cy="200" r="60" fill="white" stroke="#2E7D32" stroke-width="4" />
+  <path d="M256 200 L236 170" stroke="#2E7D32" stroke-width="5" />
+  <path d="M256 200 L276 230" stroke="#E53935" stroke-width="5" />
+  <circle cx="256" cy="200" r="8" fill="#2E7D32" />
+</svg> 

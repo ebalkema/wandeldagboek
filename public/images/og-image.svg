@@ -34,6 +34,6 @@
     
     <text x="0" y="200" font-family="Arial, sans-serif" font-size="24" fill="#4CAF50">✓ Audio opnames</text>
     <text x="0" y="240" font-family="Arial, sans-serif" font-size="24" fill="#4CAF50">✓ Foto's</text>
-    <text x="0" y="280" font-family="Arial, sans-serif" font-size="24" fill="#4CAF50">✓ Locatie en weer</text>
+    <text x="0" y="280" font-family="Arial, sans-serif" font-size="24" fill="#4CAF50">✓ Locatie</text>
   </g>
 </svg> 

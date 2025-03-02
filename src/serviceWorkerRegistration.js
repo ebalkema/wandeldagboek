@@ -67,6 +67,9 @@ function registerValidSW(swUrl, config) {
                   'wanneer alle tabs voor deze pagina zijn gesloten.'
               );
 
+              // Toon een update notificatie aan de gebruiker
+              showUpdateNotification();
+
               // Callback uitvoeren
               if (config && config.onUpdate) {
                 config.onUpdate(registration);
@@ -87,6 +90,64 @@ function registerValidSW(swUrl, config) {
     .catch((error) => {
       console.error('Fout tijdens registratie van service worker:', error);
     });
+}
+
+// Functie om een update notificatie te tonen
+function showUpdateNotification() {
+  // Creëer een eenvoudige notificatie element
+  const notification = document.createElement('div');
+  notification.style.position = 'fixed';
+  notification.style.bottom = '20px';
+  notification.style.left = '20px';
+  notification.style.right = '20px';
+  notification.style.padding = '12px 16px';
+  notification.style.background = '#4CAF50';
+  notification.style.color = 'white';
+  notification.style.borderRadius = '4px';
+  notification.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+  notification.style.display = 'flex';
+  notification.style.justifyContent = 'space-between';
+  notification.style.alignItems = 'center';
+  notification.style.zIndex = '9999';
+  notification.style.fontFamily = 'Arial, sans-serif';
+
+  // Notificatie tekst
+  const message = document.createElement('div');
+  message.textContent = 'Er is een nieuwe versie beschikbaar. Vernieuw de pagina om de update te laden.';
+  notification.appendChild(message);
+
+  // Vernieuw knop
+  const refreshButton = document.createElement('button');
+  refreshButton.textContent = 'Vernieuwen';
+  refreshButton.style.background = 'white';
+  refreshButton.style.color = '#4CAF50';
+  refreshButton.style.border = 'none';
+  refreshButton.style.padding = '8px 12px';
+  refreshButton.style.borderRadius = '4px';
+  refreshButton.style.cursor = 'pointer';
+  refreshButton.style.marginLeft = '16px';
+  refreshButton.style.fontWeight = 'bold';
+  refreshButton.onclick = () => {
+    window.location.reload();
+  };
+  notification.appendChild(refreshButton);
+
+  // Sluit knop
+  const closeButton = document.createElement('button');
+  closeButton.textContent = 'Later';
+  closeButton.style.background = 'transparent';
+  closeButton.style.color = 'white';
+  closeButton.style.border = 'none';
+  closeButton.style.padding = '8px 12px';
+  closeButton.style.cursor = 'pointer';
+  closeButton.style.marginLeft = '8px';
+  closeButton.onclick = () => {
+    document.body.removeChild(notification);
+  };
+  notification.appendChild(closeButton);
+
+  // Voeg de notificatie toe aan de pagina
+  document.body.appendChild(notification);
 }
 
 function checkValidServiceWorker(swUrl, config) {
