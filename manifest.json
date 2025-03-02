@@ -1,17 +1,38 @@
 {
   "short_name": "Wandeldagboek",
   "name": "Wandeldagboek - Jouw persoonlijke wandelervaringen",
-  "description": "Leg je wandelervaringen vast met audio, foto's, locatie en weer",
+  "description": "Leg je wandelervaringen vast met audio, foto's en locatie",
   "icons": [
     {
-      "src": "images/favicon.svg",
+      "src": "favicon.svg",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "images/logo.svg",
-      "type": "image/svg+xml",
+      "src": "favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
@@ -22,7 +43,12 @@
   "orientation": "portrait",
   "theme_color": "#4CAF50",
   "background_color": "#ffffff",
-  "categories": ["lifestyle", "health", "fitness", "travel"],
+  "categories": [
+    "lifestyle",
+    "health",
+    "fitness",
+    "travel"
+  ],
   "screenshots": [
     {
       "src": "images/og-image.svg",
@@ -32,4 +58,4 @@
   ],
   "prefer_related_applications": false,
   "related_applications": []
-} 
+}
