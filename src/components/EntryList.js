@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
   // Toegevoegde staten voor filteren en sorteren
@@ -8,14 +8,43 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [animatedEntries, setAnimatedEntries] = useState([]);
   
+  // Bereken gefilterde entries met useCallback om onnodige herberekeningen te voorkomen
+  const filteredEntries = useCallback(() => {
+    return entries
+      .filter(entry => {
+        // Filter op zoekopdracht (in aantekeningen, locatienaam, titel)
+        const searchMatch = !searchTerm || 
+          (entry.notes && entry.notes.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (entry.location && entry.location.name && 
+           entry.location.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (entry.title && entry.title.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+        // Filter op categorie
+        const categoryMatch = !categoryFilter || entry.category === categoryFilter;
+        
+        return searchMatch && categoryMatch;
+      })
+      .sort((a, b) => {
+        const dateA = a.timestamp || a.createdAt;
+        const dateB = b.timestamp || b.createdAt;
+        
+        if (!dateA || !dateB) return 0;
+        
+        const timeA = dateA.toDate ? dateA.toDate().getTime() : new Date(dateA).getTime();
+        const timeB = dateB.toDate ? dateB.toDate().getTime() : new Date(dateB).getTime();
+        
+        return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
+      });
+  }, [entries, searchTerm, categoryFilter, sortOrder]);
+  
   // Effect voor het geleidelijk laden van entries voor een mooie animatie
   useEffect(() => {
     setAnimatedEntries([]);
     const timer = setTimeout(() => {
-      setAnimatedEntries(filteredEntries.map(entry => entry.id));
+      setAnimatedEntries(filteredEntries().map(entry => entry.id));
     }, 100);
     return () => clearTimeout(timer);
-  }, [entries, searchTerm, categoryFilter, sortOrder]);
+  }, [filteredEntries]);
   
   // Verzamelen van alle unieke categorieën in de entries
   const uniqueCategories = [...new Set(
@@ -23,33 +52,6 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
       .filter(entry => entry.category)
       .map(entry => entry.category)
   )];
-  
-  // Filter en sorteer entries
-  const filteredEntries = entries
-    .filter(entry => {
-      // Filter op zoekopdracht (in aantekeningen, locatienaam, titel)
-      const searchMatch = !searchTerm || 
-        (entry.notes && entry.notes.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (entry.location && entry.location.name && 
-         entry.location.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (entry.title && entry.title.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      // Filter op categorie
-      const categoryMatch = !categoryFilter || entry.category === categoryFilter;
-      
-      return searchMatch && categoryMatch;
-    })
-    .sort((a, b) => {
-      const dateA = a.timestamp || a.createdAt;
-      const dateB = b.timestamp || b.createdAt;
-      
-      if (!dateA || !dateB) return 0;
-      
-      const timeA = dateA.toDate ? dateA.toDate().getTime() : new Date(dateA).getTime();
-      const timeB = dateB.toDate ? dateB.toDate().getTime() : new Date(dateB).getTime();
-      
-      return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
-    });
   
   // Als er geen entries zijn, toon een bericht
   if (entries.length === 0) {
@@ -140,6 +142,9 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
     return categoryMap[category] || '🚶';
   };
 
+  // Bereken de gefilterde entries voor weergave
+  const entriesToDisplay = filteredEntries();
+
   return (
     <div className="entry-list">
       {/* Zoek- en filterbalk */}
@@ -214,12 +219,12 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
       <h2 className="entries-title">
         <span className="title-icon">📋</span>
         Jouw Wandelnotities 
-        {filteredEntries.length !== entries.length && (
-          <span className="filter-count">({filteredEntries.length} van {entries.length})</span>
+        {entriesToDisplay.length !== entries.length && (
+          <span className="filter-count">({entriesToDisplay.length} van {entries.length})</span>
         )}
       </h2>
       
-      {filteredEntries.length === 0 ? (
+      {entriesToDisplay.length === 0 ? (
         <div className="no-results">
           <div className="no-results-icon">🔍</div>
           <p>Geen notities gevonden die aan je zoekcriteria voldoen.</p>
@@ -229,7 +234,7 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
         </div>
       ) : (
         <div className="entries-grid">
-          {filteredEntries.map((entry) => (
+          {entriesToDisplay.map((entry) => (
             <div 
               key={entry.id} 
               className={`entry-item card ${animatedEntries.includes(entry.id) ? 'animated' : ''}`}

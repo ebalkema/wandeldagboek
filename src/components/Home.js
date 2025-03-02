@@ -19,8 +19,8 @@ const Home = ({ setView }) => {
         <p>
           Wandeldagboek is een app die speciaal ontworpen is om je wandelervaringen vast te leggen. 
           Tijdens je wandelingen kun je audio-opnames maken, foto's toevoegen en notities maken. 
-          De app slaat automatisch je locatie en het actuele weer op, zodat je later precies weet 
-          waar je was en onder welke omstandigheden.
+          De app slaat automatisch je locatie op, zodat je later precies weet 
+          waar je was tijdens je wandeling.
         </p>
         <p className="app-tagline">
           Elke wandeling vertelt een verhaal. Laat Wandeldagboek jouw verhalen bewaren.
@@ -46,14 +46,14 @@ const Home = ({ setView }) => {
             <p>Automatisch opslaan van je exacte route en locatie</p>
           </div>
           <div className="feature-item card">
-            <span className="feature-icon">☁️</span>
-            <h4>Weer</h4>
-            <p>Bewaar het weer tijdens je wandeling voor de complete herinnering</p>
-          </div>
-          <div className="feature-item card">
             <span className="feature-icon">📸</span>
             <h4>Foto's</h4>
             <p>Leg de mooiste momenten vast met een foto bij je notitie</p>
+          </div>
+          <div className="feature-item card">
+            <span className="feature-icon">🎧</span>
+            <h4>Audio</h4>
+            <p>Neem geluiden op of spreek je gedachten in tijdens je wandeling</p>
           </div>
           <div className="feature-item card">
             <span className="feature-icon">🗺️</span>
