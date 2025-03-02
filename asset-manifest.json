@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/wandeldagboek/static/css/main.a33937e3.css",
-    "main.js": "/wandeldagboek/static/js/main.2387ec25.js",
+    "main.css": "/wandeldagboek/static/css/main.2ae51e41.css",
+    "main.js": "/wandeldagboek/static/js/main.9cd0e0a9.js",
     "static/js/453.bdcfc3fa.chunk.js": "/wandeldagboek/static/js/453.bdcfc3fa.chunk.js",
     "index.html": "/wandeldagboek/index.html",
-    "main.a33937e3.css.map": "/wandeldagboek/static/css/main.a33937e3.css.map",
-    "main.2387ec25.js.map": "/wandeldagboek/static/js/main.2387ec25.js.map",
+    "main.2ae51e41.css.map": "/wandeldagboek/static/css/main.2ae51e41.css.map",
+    "main.9cd0e0a9.js.map": "/wandeldagboek/static/js/main.9cd0e0a9.js.map",
     "453.bdcfc3fa.chunk.js.map": "/wandeldagboek/static/js/453.bdcfc3fa.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a33937e3.css",
-    "static/js/main.2387ec25.js"
+    "static/css/main.2ae51e41.css",
+    "static/js/main.9cd0e0a9.js"
   ]
 }
