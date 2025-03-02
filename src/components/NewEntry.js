@@ -6,12 +6,10 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   const [audioURL, setAudioURL] = useState(null);
   const [location, setLocation] = useState(null);
   const [locationName, setLocationName] = useState('');
-  const [weather, setWeather] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
-  const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const [showPhotoPrompt, setShowPhotoPrompt] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isRecognizing, setIsRecognizing] = useState(false);
@@ -21,15 +19,14 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   const audioChunksRef = useRef([]);
   const recognitionRef = useRef(null);
 
-  // Functie om locatie en weer op de achtergrond op te halen - verplaatst naar boven
-  const fetchLocationAndWeather = useCallback(() => {
+  // Functie om locatie op te halen
+  const fetchLocation = useCallback(() => {
     if (navigator.geolocation) {
       setIsLoadingLocation(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setLocation({ latitude, longitude });
-          fetchWeather(latitude, longitude);
           fetchLocationName(latitude, longitude);
           setIsLoadingLocation(false);
         },
@@ -104,143 +101,13 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
     }
   };
 
-  // Functie om het weer op te halen op basis van locatie
-  const fetchWeather = async (latitude, longitude) => {
-    setIsLoadingWeather(true);
-    try {
-      // Configureerbare API-sleutel - in een echte app zou dit uit een .env bestand of configuratie komen
-      // Gratis API-sleutel van OpenWeatherMap (beperkt tot 60 aanvragen per minuut / 1000 per dag)
-      const apiKey = process.env.REACT_APP_WEATHER_API_KEY || '1b3f9c5cd61b7ffb5a9a3c00b5f42ce3';
-      
-      console.log('Weer ophalen voor locatie:', { latitude, longitude });
-      
-      // Primaire API endpoint
-      const endpoint = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=nl&appid=${apiKey}`;
-      
-      // Alternatieve API endpoint als backup (via proxy om CORS-problemen te vermijden)
-      const backupEndpoint = `https://cors-anywhere.herokuapp.com/https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=nl&appid=${apiKey}`;
-      
-      // Probeer eerst de primaire endpoint
-      try {
-        console.log('Primaire weer-endpoint proberen...');
-        const response = await fetch(endpoint);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Weergegevens ontvangen:', data);
-          
-          setWeather({
-            temperature: Math.round(data.main.temp),
-            description: data.weather[0].description,
-            icon: data.weather[0].icon,
-            humidity: data.main.humidity,
-            windSpeed: data.wind.speed
-          });
-          setIsLoadingWeather(false);
-          return;
-        } else {
-          console.warn(`Primaire endpoint fout: ${response.status} ${response.statusText}`);
-        }
-      } catch (primaryError) {
-        console.warn('Fout bij primaire weer-endpoint:', primaryError);
-      }
-      
-      // Als primaire endpoint faalt, probeer de backup
-      try {
-        console.log('Backup weer-endpoint proberen...');
-        const response = await fetch(backupEndpoint);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Weergegevens ontvangen van backup:', data);
-          
-          setWeather({
-            temperature: Math.round(data.main.temp),
-            description: data.weather[0].description,
-            icon: data.weather[0].icon,
-            humidity: data.main.humidity,
-            windSpeed: data.wind.speed
-          });
-          setIsLoadingWeather(false);
-          return;
-        } else {
-          console.warn(`Backup endpoint fout: ${response.status} ${response.statusText}`);
-        }
-      } catch (backupError) {
-        console.warn('Fout bij backup weer-endpoint:', backupError);
-      }
-      
-      // Als beide endpoints falen, gebruik lokale weerbepaling via de browser
-      try {
-        console.log('Lokale weerbepaling proberen...');
-        // Gebruik navigator.permissions om te controleren of we toegang hebben tot sensors
-        if (navigator.permissions && navigator.sensors) {
-          const permission = await navigator.permissions.query({ name: 'ambient-light-sensor' });
-          if (permission.state === 'granted') {
-            // Hier zou je sensoren kunnen gebruiken om lokaal weer te bepalen
-            // Dit is een voorbeeld en werkt niet in alle browsers
-            console.log('Lokale sensoren beschikbaar, maar nog niet geïmplementeerd');
-          }
-        }
-      } catch (sensorError) {
-        console.warn('Lokale sensoren niet beschikbaar:', sensorError);
-      }
-      
-      // Als alles faalt, gebruik vooraf gedefinieerde weergegevens
-      console.warn('Kon geen weer ophalen, gebruik fallback weerdata');
-      setWeather({
-        temperature: Math.round(15 + (Math.random() * 10 - 5)), // Willekeurige temperatuur rond 15°C
-        description: 'Bewolkt', // Vervang "Weergegevens niet beschikbaar" door een algemene beschrijving
-        icon: '03d', // Standaard icoon (bewolkt)
-        humidity: 70,
-        windSpeed: 3.5
-      });
-      
-    } catch (error) {
-      console.error('Algemene weerfout:', error);
-      // Fallback weerdata
-      setWeather({
-        temperature: Math.round(15 + (Math.random() * 10 - 5)),
-        description: 'Bewolkt', // Vervang "Weergegevens niet beschikbaar" door een algemene beschrijving
-        icon: '03d',
-        humidity: 70,
-        windSpeed: 3.5
-      });
-    } finally {
-      setIsLoadingWeather(false);
-    }
-  };
-
-  // Update de fetchLocationAndWeather functie om de afhankelijkheden correct te definiëren
-  const fetchLocationAndWeatherWithDeps = useCallback(() => {
-    if (navigator.geolocation) {
-      setIsLoadingLocation(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ latitude, longitude });
-          fetchWeather(latitude, longitude);
-          fetchLocationName(latitude, longitude);
-          setIsLoadingLocation(false);
-        },
-        (err) => {
-          console.error('Locatiefout:', err);
-          setError('Kan locatie niet verkrijgen. Zorg dat je locatietoegang hebt ingeschakeld.');
-          setIsLoadingLocation(false);
-        }
-      );
-    } else {
-      setError('Geolocation wordt niet ondersteund door deze browser.');
-    }
-  }, [fetchWeather, fetchLocationName]);
-
   // Effect voor het initialiseren van de spraakherkenning bij het laden van de component
   useEffect(() => {
     // Initialiseer de SpeechRecognition API als die beschikbaar is
     initSpeechRecognition();
     
-    // Start het ophalen van locatie en weer op de achtergrond
-    fetchLocationAndWeatherWithDeps();
+    // Start het ophalen van locatie op de achtergrond
+    fetchLocation();
     
     // Cleanup functie voor SpeechRecognition
     return () => {
@@ -248,7 +115,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
         recognitionRef.current.stop();
       }
     };
-  }, [fetchLocationAndWeatherWithDeps]);
+  }, [fetchLocation]);
 
   // Initialiseer de Speech Recognition API
   const initSpeechRecognition = () => {
@@ -298,38 +165,49 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      
+      // Reset audio chunks
       audioChunksRef.current = [];
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
+      
+      // Maak een nieuwe MediaRecorder instantie
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      
+      // Event handler voor wanneer data beschikbaar is
+      mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
-
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const url = URL.createObjectURL(audioBlob);
-        setAudioURL(url);
+      
+      // Event handler voor wanneer opname stopt
+      mediaRecorder.onstop = () => {
+        // Maak een blob van de opgenomen audio chunks
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        
+        // Maak een URL voor de blob
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setAudioURL(audioUrl);
+        
+        // Stop alle tracks in de stream
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Toon de foto prompt na het opnemen van audio
         setShowPhotoPrompt(true);
       };
-
-      mediaRecorderRef.current.start();
+      
+      // Start de opname
+      mediaRecorder.start();
       setIsRecording(true);
       
-      // Start spraakherkenning
+      // Start spraakherkenning als die beschikbaar is
       if (recognitionRef.current) {
-        setTranscript('');
         recognitionRef.current.start();
       }
       
-      // Als we nog geen locatie hebben, probeer deze nu op te halen
-      if (!location) {
-        fetchLocationAndWeatherWithDeps();
-      }
     } catch (error) {
-      console.error('Opnamefout:', error);
-      setError('Kon geen toegang krijgen tot de microfoon. Controleer je browserinstellingen.');
+      console.error('Fout bij starten opname:', error);
+      setError('Kan geen toegang krijgen tot de microfoon. Controleer je browserinstellingen.');
     }
   };
 
@@ -339,20 +217,9 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       
-      // Stop alle tracks van de stream die we hebben verkregen
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-      
       // Stop spraakherkenning
       if (recognitionRef.current) {
         recognitionRef.current.stop();
-      }
-      
-      // Zet de getranscribeerde tekst in de notities
-      if (transcript.trim()) {
-        setNotes(prev => {
-          const prefix = prev.trim() ? prev.trim() + '\n\n' : '';
-          return prefix + "Getranscribeerde audio: " + transcript.trim();
-        });
       }
     }
   };
@@ -360,43 +227,38 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   // Verwerk foto upload
   const handlePhotoChange = (e) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
       const reader = new FileReader();
-      reader.onload = (event) => {
-        setPhoto(event.target.result);
+      
+      reader.onloadend = () => {
+        setPhoto(reader.result);
       };
-      reader.readAsDataURL(e.target.files[0]);
+      
+      reader.readAsDataURL(file);
     }
   };
 
-  // Verwerk notities verandering
-  const handleNotesChange = (e) => {
-    setNotes(e.target.value);
-  };
-
-  // Functie om een betekenisvolle naam te genereren voor de wandelnotitie
+  // Genereer een betekenisvolle naam voor de wandelnotitie
   const generateEntryName = () => {
-    // Datum en tijd formatteren
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('nl-NL', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-    
-    const timeStr = now.toLocaleTimeString('nl-NL', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-    
-    // Locatienaam gebruiken indien beschikbaar
-    let locationPart = 'Onbekende locatie';
-    if (locationName && locationName.trim()) {
-      // Gebruik alleen het eerste deel van de locatienaam (tot de eerste komma)
+    // Locatiedeel
+    let locationPart = 'Wandeling';
+    if (locationName) {
+      // Neem alleen het eerste deel van de locatienaam (voor de eerste komma)
       locationPart = locationName.split(',')[0].trim();
-    } else if (location) {
-      // Als er geen locatienaam is maar wel coördinaten, gebruik dan een algemene beschrijving
-      locationPart = 'Wandeling';
     }
+    
+    // Datum en tijd
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('nl-NL', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+    
+    const timeStr = now.toLocaleTimeString('nl-NL', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
     
     // Combineer de delen tot een betekenisvolle naam
     return `${locationPart} - ${dateStr} ${timeStr}`;
@@ -424,7 +286,6 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
         title: entryTitle, // Voeg de gegenereerde titel toe
         timestamp: new Date(), // Tijdstip van opslaan
         location: location || fallbackLocation,
-        weather: weather || { temperature: 15, description: 'Bewolkt', icon: '03d', humidity: 70, windSpeed: 3.5 },
         transcript: transcript || '',
         notes: notes || '',
       };
@@ -449,51 +310,30 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
           imageFileToSave = new File([blob], 'wandelnotitie-foto.jpg', { type: 'image/jpeg' });
           console.log('Foto blob aangemaakt:', !!imageFileToSave);
         } catch (photoError) {
-          console.error('Fout bij voorbereiden foto:', photoError);
+          console.error('Fout bij verwerken foto:', photoError);
         }
       }
       
-      // Data opslaan via onAddEntry callback
-      console.log('onAddEntry aanroepen...');
-      try {
-        await onAddEntry(
-          entryData,
-          imageFileToSave,
-          audioBlobToSave
-        );
-        console.log('onAddEntry aangeroepen');
-        
-        // Reset state voor nieuwe entry na succesvol opslaan
-        setTranscript('');
-        setNotes('');
-        setAudioURL(null);
-        setPhoto(null);
-        setIsRecording(false);
-        
-        // Bevestiging tonen
-        alert('Notitie succesvol opgeslagen!');
-        
-        // Ga terug naar vorige scherm (implementeer dit indien nodig)
-        if (onCancel) {
-          onCancel();
-        }
-      } catch (error) {
-        console.error('Fout bij opslaan:', error);
-        alert(`Er is een fout opgetreden bij het opslaan: ${error.message || 'Onbekende fout'}`);
-      }
+      // Roep de callback aan om de entry toe te voegen
+      onAddEntry(entryData, audioBlobToSave, imageFileToSave);
+      
     } catch (error) {
-      console.error('Fout in handleSave:', error);
-      alert(`Er is een fout opgetreden: ${error.message || 'Onbekende fout'}`);
+      console.error('Fout bij opslaan:', error);
+      setError('Er is een fout opgetreden bij het opslaan van je notitie. Probeer het opnieuw.');
     }
   };
 
   return (
-    <div className="new-entry card">
+    <div className="new-entry">
       <h2>Nieuwe Wandelnotitie</h2>
       
-      {error && <p className="error">{error}</p>}
+      {error && (
+        <div className="error">
+          <p>{error}</p>
+        </div>
+      )}
       
-      <div>
+      <div className="entry-form">
         <div className="form-group">
           <h3>Spraaknotitie</h3>
           {!audioURL ? (
@@ -529,7 +369,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
           )}
         </div>
         
-        {/* Locatie en weer informatie (wordt op de achtergrond geladen) */}
+        {/* Locatie informatie (wordt op de achtergrond geladen) */}
         {location && (
           <div className="location-info">
             <p>
@@ -548,25 +388,6 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
             </p>
           </div>
         )}
-        
-        {weather ? (
-          <div className="weather-info">
-            <strong>Huidige weer:</strong> {weather.description !== 'Weergegevens niet beschikbaar' && weather.description !== 'gegevens niet beschikbaar' ? 
-              `${weather.description}, ${weather.temperature}°C` : 
-              `${weather.temperature}°C`}
-            {weather.humidity && weather.windSpeed && (
-              <span className="weather-details">
-                <br />
-                <span className="weather-detail">Luchtvochtigheid: {weather.humidity}%</span>
-                <span className="weather-detail">Wind: {weather.windSpeed} m/s</span>
-              </span>
-            )}
-          </div>
-        ) : isLoadingWeather ? (
-          <div className="weather-info">
-            <strong>Weer:</strong> Weergegevens worden opgehaald...
-          </div>
-        ) : null}
         
         {showPhotoPrompt && (
           <div className="form-group">
@@ -598,28 +419,16 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
               rows="4"
               placeholder="Voeg eventueel extra aantekeningen toe..."
               value={notes}
-              onChange={handleNotesChange}
-              id="notes-textarea"
-              name="notes"
-              autoComplete="off"
-            ></textarea>
-            <p className="note-help">De getranscribeerde audio is automatisch toegevoegd aan de aantekeningen.</p>
+              onChange={(e) => setNotes(e.target.value)}
+            />
           </div>
         )}
         
         <div className="form-actions">
-          <button 
-            className="back-btn" 
-            onClick={onCancel}
-          >
-            Annuleren
-          </button>
-          <button 
-            onClick={handleSave}
-            disabled={!audioURL}
-          >
-            Opslaan
-          </button>
+          <button className="secondary" onClick={onCancel}>Annuleren</button>
+          {audioURL && (
+            <button className="primary-btn" onClick={handleSave}>Opslaan</button>
+          )}
         </div>
       </div>
     </div>

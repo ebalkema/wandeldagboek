@@ -106,63 +106,6 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
     }
   };
 
-  // Helper om weergegevens veilig weer te geven
-  const renderWeather = (weatherData) => {
-    if (!weatherData) {
-      return (
-        <div className="weather-info weather-unavailable">
-          <strong>Weer: </strong>
-          <span>Weergegevens niet beschikbaar</span>
-        </div>
-      );
-    }
-    
-    // Controleer of we geldige weergegevens hebben
-    const hasValidData = weatherData.description && 
-                        weatherData.description !== 'gegevens niet beschikbaar' &&
-                        weatherData.description !== 'Weergegevens niet beschikbaar' && 
-                        weatherData.temperature !== undefined;
-    
-    if (!hasValidData) {
-      return (
-        <div className="weather-info weather-unavailable">
-          <strong>Weer: </strong>
-          <span>Weergegevens niet beschikbaar</span>
-        </div>
-      );
-    }
-    
-    // Bepaal het juiste weer-icoon
-    const getWeatherIcon = (description) => {
-      const desc = description.toLowerCase();
-      if (desc.includes('zon') || desc.includes('helder') || desc.includes('clear')) return '☀️';
-      if (desc.includes('wolk') || desc.includes('bewolkt') || desc.includes('cloud')) return '☁️';
-      if (desc.includes('regen') || desc.includes('rain')) return '🌧️';
-      if (desc.includes('onweer') || desc.includes('thunder')) return '⛈️';
-      if (desc.includes('sneeuw') || desc.includes('snow')) return '❄️';
-      if (desc.includes('mist') || desc.includes('fog')) return '🌫️';
-      return '🌤️'; // Standaard icoon
-    };
-    
-    return (
-      <div className="weather-info">
-        <div className="weather-main">
-          <span className="weather-icon">{getWeatherIcon(weatherData.description)}</span>
-          <span className="weather-description">
-            <strong>{weatherData.description}</strong>
-            <span className="weather-temp">{weatherData.temperature}°C</span>
-          </span>
-        </div>
-        {weatherData.humidity && weatherData.windSpeed && (
-          <div className="weather-details">
-            <span className="weather-detail">💧 {weatherData.humidity}%</span>
-            <span className="weather-detail">💨 {weatherData.windSpeed} m/s</span>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   // Functie om naar kaartweergave te gaan voor een specifieke entry
   const viewOnMap = (entry) => {
     if (onViewMap && entry.location) {
@@ -339,8 +282,6 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
                     )}
                   </div>
                 )}
-                
-                {entry.weather && renderWeather(entry.weather)}
                 
                 {entry.notes && (
                   <div className="entry-notes">

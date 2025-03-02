@@ -248,90 +248,112 @@ const uploadImage = async (imageFile, userId) => {
     // Extra logging voor debugging
     console.log("Storage reference created:", storageRef);
     
-    // Probeer de upload met extra foutafhandeling
-    try {
-      await uploadBytes(storageRef, imageFile);
-      console.log("Image upload successful");
-      const downloadURL = await getDownloadURL(storageRef);
-      console.log("Image download URL obtained:", downloadURL);
-      return downloadURL;
-    } catch (uploadError) {
-      console.error("Specifieke upload fout:", uploadError);
-      // Als de error een CORS error is, toon specifieke melding
-      if (uploadError.message && uploadError.message.includes("CORS")) {
-        console.error("CORS fout bij uploaden. Zorg dat CORS is ingeschakeld in Firebase console.");
-      }
-      throw uploadError;
-    }
+    // Upload de afbeelding
+    const snapshot = await uploadBytes(storageRef, imageFile);
+    console.log("Afbeelding geüpload, snapshot:", snapshot);
+    
+    // Haal de download URL op
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log("Download URL verkregen:", downloadURL);
+    
+    return downloadURL;
   } catch (error) {
-    console.error("Algemene fout in uploadImage:", error);
+    console.error("Fout bij uploaden afbeelding:", error);
     throw error;
   }
 };
 
 /**
- * Hulpfunctie om audio te uploaden naar Firebase Storage
- * @param {Blob} audioBlob - De audio die geüpload moet worden
+ * Hulpfunctie om een audio bestand te uploaden naar Firebase Storage
+ * @param {Blob} audioBlob - De audio blob die geüpload moet worden
  * @param {string} userId - Firebase user ID
- * @returns {Promise<string>} - URL van de geüploade audio
+ * @returns {Promise<string>} - URL van het geüploade audio bestand
  */
 const uploadAudio = async (audioBlob, userId) => {
   try {
-    console.log("Begin uploadAudio functie met blob grootte:", audioBlob.size);
+    console.log("Begin uploadAudio functie met blob size:", audioBlob.size);
     
     const timestamp = new Date().getTime();
-    const storagePath = `audio/${userId}/${timestamp}.webm`;
+    const storagePath = `audio/${userId}/${timestamp}_audio.webm`;
     const storageRef = ref(storage, storagePath);
     
     console.log("Uploading audio to Firebase Storage:", storagePath);
-    // Extra logging voor debugging
-    console.log("Storage reference created:", storageRef);
     
-    // Probeer de upload met extra foutafhandeling
-    try {
-      await uploadBytes(storageRef, audioBlob);
-      console.log("Audio upload successful");
-      const downloadURL = await getDownloadURL(storageRef);
-      console.log("Audio download URL obtained:", downloadURL);
-      return downloadURL;
-    } catch (uploadError) {
-      console.error("Specifieke upload fout:", uploadError);
-      // Als de error een CORS error is, toon specifieke melding
-      if (uploadError.message && uploadError.message.includes("CORS")) {
-        console.error("CORS fout bij uploaden. Zorg dat CORS is ingeschakeld in Firebase console.");
-      }
-      throw uploadError;
-    }
+    // Upload de audio blob
+    const snapshot = await uploadBytes(storageRef, audioBlob);
+    console.log("Audio geüpload, snapshot:", snapshot);
+    
+    // Haal de download URL op
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log("Download URL verkregen:", downloadURL);
+    
+    return downloadURL;
   } catch (error) {
-    console.error("Algemene fout in uploadAudio:", error);
+    console.error("Fout bij uploaden audio:", error);
     throw error;
   }
 };
 
 /**
  * Hulpfunctie om een afbeelding te verwijderen uit Firebase Storage
- * @param {string} imageUrl - URL van de afbeelding
+ * @param {string} imageUrl - De URL van de afbeelding die verwijderd moet worden
  * @returns {Promise<void>}
  */
 const deleteImage = async (imageUrl) => {
   try {
-    const imageRef = ref(storage, imageUrl);
+    // Haal de storage path uit de URL
+    const urlObj = new URL(imageUrl);
+    const pathWithToken = urlObj.pathname;
+    
+    // Verwijder de token parameters en het voorvoegsel '/v0/b/[project-id].appspot.com/o/'
+    const encodedPath = pathWithToken.split('/o/')[1].split('?')[0];
+    
+    // Decode de URL om de echte path te krijgen
+    const path = decodeURIComponent(encodedPath);
+    
+    console.log("Verwijderen afbeelding uit storage:", path);
+    
+    // Maak een reference naar het bestand
+    const imageRef = ref(storage, path);
+    
+    // Verwijder het bestand
     await deleteObject(imageRef);
+    console.log("Afbeelding succesvol verwijderd");
   } catch (error) {
-    console.error('Error deleting image:', error);
+    console.error("Fout bij verwijderen afbeelding:", error);
+    // We gooien de fout niet door, omdat we niet willen dat het verwijderen van de entry faalt
+    // als het verwijderen van de afbeelding mislukt
   }
 };
 
 /**
- * Hulpfunctie om audio te verwijderen uit Firebase Storage
- * @param {string} audioUrl - URL van de audio
+ * Hulpfunctie om een audio bestand te verwijderen uit Firebase Storage
+ * @param {string} audioUrl - De URL van het audio bestand dat verwijderd moet worden
  * @returns {Promise<void>}
  */
 const deleteAudio = async (audioUrl) => {
   try {
-    const audioRef = ref(storage, audioUrl);
+    // Haal de storage path uit de URL
+    const urlObj = new URL(audioUrl);
+    const pathWithToken = urlObj.pathname;
+    
+    // Verwijder de token parameters en het voorvoegsel '/v0/b/[project-id].appspot.com/o/'
+    const encodedPath = pathWithToken.split('/o/')[1].split('?')[0];
+    
+    // Decode de URL om de echte path te krijgen
+    const path = decodeURIComponent(encodedPath);
+    
+    console.log("Verwijderen audio uit storage:", path);
+    
+    // Maak een reference naar het bestand
+    const audioRef = ref(storage, path);
+    
+    // Verwijder het bestand
     await deleteObject(audioRef);
+    console.log("Audio succesvol verwijderd");
   } catch (error) {
-    console.error('Error deleting audio:', error);
+    console.error("Fout bij verwijderen audio:", error);
+    // We gooien de fout niet door, omdat we niet willen dat het verwijderen van de entry faalt
+    // als het verwijderen van de audio mislukt
   }
 }; 
