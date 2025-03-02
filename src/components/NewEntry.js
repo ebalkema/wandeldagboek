@@ -14,7 +14,6 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
   const [showPhotoPrompt, setShowPhotoPrompt] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isRecognizing, setIsRecognizing] = useState(false);
-  const [transcriptionComplete, setTranscriptionComplete] = useState(false);
 
   // Refs voor audio opname
   const mediaRecorderRef = useRef(null);
@@ -75,15 +74,12 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
     };
     
     recognitionRef.current.onresult = (event) => {
-      let interimTranscript = '';
       let finalTranscript = '';
       
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
           finalTranscript += transcript + ' ';
-        } else {
-          interimTranscript += transcript;
         }
       }
       
@@ -98,7 +94,6 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
     
     recognitionRef.current.onend = () => {
       setIsRecognizing(false);
-      setTranscriptionComplete(true);
       console.log("Spraakherkenning beëindigd");
     };
   };
@@ -246,7 +241,6 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       // Start spraakherkenning
       if (recognitionRef.current) {
         setTranscript('');
-        setTranscriptionComplete(false);
         recognitionRef.current.start();
       }
     } catch (error) {
@@ -295,28 +289,85 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
     setNotes(e.target.value);
   };
 
-  // Maak en sla nieuwe entry op
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Functie die wordt aangeroepen wanneer de gebruiker op Opslaan drukt
+  const handleSave = async () => {
+    console.log('handleSave functie aangeroepen');
     
-    if (!audioURL) {
-      setError('Maak eerst een spraaknotitie voordat je opslaat.');
+    // Controleer of de notitie belangrijke inhoud heeft
+    if (!transcript && !notes) {
+      alert('Je moet een spraaknotitie opnemen of tekst invoeren voordat je kunt opslaan.');
       return;
     }
     
-    const newEntry = {
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      audio: audioURL,
-      location,
-      locationName,
-      weather,
-      photo,
-      notes,
-      transcript: transcript.trim() // Bewaar de transcriptie apart
-    };
-    
-    onAddEntry(newEntry);
+    try {
+      // Definieer fallback waarden indien nodig
+      const fallbackLocation = { latitude: 52.3676, longitude: 4.9041, name: 'Onbekende locatie' };
+      
+      // Alle gegevens voorbereiden voor opslaan
+      const entryData = {
+        timestamp: new Date(), // Tijdstip van opslaan
+        location: location || fallbackLocation,
+        weather: weather || { temperature: 15, description: 'gegevens niet beschikbaar', icon: '01d' },
+        transcript: transcript || '',
+        notes: notes || '',
+      };
+      
+      console.log('Voorbereid voor opslaan:', entryData);
+      
+      // Verwerk audio blob als we hebben opgenomen
+      let audioBlobToSave = null;
+      if (audioChunksRef.current && audioChunksRef.current.length > 0) {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        console.log('Audio blob aangemaakt:', !!audioBlob);
+        audioBlobToSave = audioBlob;
+      }
+      
+      // Verwerk foto indien geüpload
+      let imageFileToSave = null; 
+      if (photo) {
+        // Foto van dataURL omzetten naar bestand
+        try {
+          const response = await fetch(photo);
+          const blob = await response.blob();
+          imageFileToSave = new File([blob], 'wandelnotitie-foto.jpg', { type: 'image/jpeg' });
+          console.log('Foto blob aangemaakt:', !!imageFileToSave);
+        } catch (photoError) {
+          console.error('Fout bij voorbereiden foto:', photoError);
+        }
+      }
+      
+      // Data opslaan via onAddEntry callback
+      console.log('onAddEntry aanroepen...');
+      try {
+        await onAddEntry(
+          entryData,
+          imageFileToSave,
+          audioBlobToSave
+        );
+        console.log('onAddEntry aangeroepen');
+        
+        // Reset state voor nieuwe entry na succesvol opslaan
+        setTranscript('');
+        setNotes('');
+        setAudioURL(null);
+        setPhoto(null);
+        setIsRecording(false);
+        
+        // Bevestiging tonen
+        alert('Notitie succesvol opgeslagen!');
+        
+        // Ga terug naar vorige scherm (implementeer dit indien nodig)
+        if (onCancel) {
+          onCancel();
+        }
+      } catch (error) {
+        console.error('Fout bij opslaan:', error);
+        alert(`Er is een fout opgetreden bij het opslaan: ${error.message || 'Onbekende fout'}`);
+      }
+    } catch (error) {
+      console.error('Fout in handleSave:', error);
+      alert(`Er is een fout opgetreden: ${error.message || 'Onbekende fout'}`);
+    }
   };
 
   return (
@@ -394,6 +445,8 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
                 type="file" 
                 accept="image/*" 
                 onChange={handlePhotoChange} 
+                id="photo-upload"
+                name="photo-upload"
               />
               {photo && (
                 <div>
@@ -416,6 +469,9 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
                 placeholder="Voeg eventueel extra aantekeningen toe..."
                 value={notes}
                 onChange={handleNotesChange}
+                id="notes-textarea"
+                name="notes"
+                autoComplete="off"
               ></textarea>
               <p className="note-help">De getranscribeerde audio is automatisch toegevoegd aan de aantekeningen.</p>
             </div>
@@ -429,7 +485,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
               Annuleren
             </button>
             <button 
-              onClick={handleSubmit}
+              onClick={handleSave}
               disabled={!audioURL}
             >
               Opslaan

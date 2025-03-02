@@ -19,34 +19,37 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Deze component past de kaartweergave aan nadat de kaart is geladen
+// Component om het kaartbereik in te stellen op basis van entries en gebruikerslocatie
 const MapBounds = ({ entries, userLocation }) => {
   const map = useMap();
   
   useEffect(() => {
     if (!map) return;
-
-    // Verzamel alle geldige locaties (inclusief gebruikerslocatie als die beschikbaar is)
-    const validLocations = entries
-      .filter(entry => entry.location)
-      .map(entry => [entry.location.latitude, entry.location.longitude]);
     
-    if (userLocation) {
-      validLocations.push(userLocation);
-    }
-    
-    if (validLocations.length > 0) {
-      // Als er locaties zijn, maak dan een bounds object
-      const bounds = L.latLngBounds(validLocations);
+    // Als er wandelnotities zijn, zoom in op alle entries
+    if (entries && entries.length > 0) {
+      const bounds = new L.LatLngBounds();
       
-      // Zoom naar de bounds met wat padding
-      map.fitBounds(bounds, {
-        padding: [50, 50],
-        maxZoom: 15 // Beperk de maximale zoom om te voorkomen dat we te veel inzoomen
+      // Voeg alle entries toe aan de bounds
+      entries.forEach(entry => {
+        if (entry.location && entry.location.latitude && entry.location.longitude) {
+          bounds.extend([entry.location.latitude, entry.location.longitude]);
+        }
       });
-    } else if (userLocation) {
-      // Als er geen wandelnotities zijn maar wel een gebruikerslocatie
-      map.setView(userLocation, 13);
+      
+      // Voeg de gebruikerslocatie toe aan de bounds als deze beschikbaar is
+      if (userLocation) {
+        bounds.extend([userLocation.latitude, userLocation.longitude]);
+      }
+      
+      // Als we geldige bounds hebben, pas de kaartweergave aan
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    } 
+    // Als er alleen een gebruikerslocatie is, centreer daarop
+    else if (userLocation) {
+      map.setView([userLocation.latitude, userLocation.longitude], 13);
     }
     // Anders blijft de standaard view (Amsterdam) behouden
   }, [map, entries, userLocation]);
@@ -54,113 +57,58 @@ const MapBounds = ({ entries, userLocation }) => {
   return null;
 };
 
-// Component om vogelinformatie te tonen op de kaart
-const BirdInfo = ({ location }) => {
-  const map = useMap();
-  const [birdData, setBirdData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  
-  useEffect(() => {
-    const fetchBirdData = async () => {
-      if (!location || !Array.isArray(location) || location.length !== 2) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        // Coordinaten in het juiste formaat (lat,lng)
-        const lat = location[0];
-        const lng = location[1];
-        
-        // eBird API aanroepen met de gegeven API key
-        const response = await fetch(
-          `https://api.ebird.org/v2/data/obs/geo/recent?lat=${lat}&lng=${lng}&dist=10&maxResults=10`,
-          {
-            method: 'GET',
-            headers: {
-              'X-eBirdApiToken': 'ddqtvos8h97l'
-            }
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error(`eBird API fout: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setBirdData(data);
-      } catch (err) {
-        console.error('Fout bij ophalen vogelgegevens:', err);
-        setError('Kon vogelgegevens niet ophalen');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchBirdData();
-  }, [location]);
-  
-  return null;
-};
-
-// Helper functie om Nederlandse vogelnaam te krijgen
+// Helper functie om Nederlandse vogelnaam te bepalen
 const getNederlandseVogelnaam = (engelseNaam, wetenschappelijkeNaam) => {
-  // Eenvoudige mapping van veelvoorkomende vogels (kan uitgebreid worden met meer soorten)
-  const vogelMapping = {
-    'Eurasian Blackbird': 'Merel',
+  // Mapping van Engelse naar Nederlandse namen
+  const vogelNamen = {
+    'Common Blackbird': 'Merel',
     'European Robin': 'Roodborst',
     'Great Tit': 'Koolmees',
-    'Blue Tit': 'Pimpelmees',
-    'Carrion Crow': 'Zwarte Kraai',
-    'Common Wood-Pigeon': 'Houtduif',
-    'Mallard': 'Wilde Eend',
-    'White Stork': 'Ooievaar',
+    'Eurasian Blue Tit': 'Pimpelmees',
     'House Sparrow': 'Huismus',
-    'Barn Swallow': 'Boerenzwaluw',
-    'Common Buzzard': 'Buizerd',
-    'Eurasian Magpie': 'Ekster',
-    'Eurasian Coot': 'Meerkoet',
     'Common Chaffinch': 'Vink',
+    'European Greenfinch': 'Groenling',
     'European Goldfinch': 'Putter',
     'Common Starling': 'Spreeuw',
-    'Western Jackdaw': 'Kauw',
-    'European Greenfinch': 'Groenling',
-    'Common Swift': 'Gierzwaluw',
-    'Eurasian Collared-Dove': 'Turkse Tortel',
-    'Tufted Duck': 'Kuifeend',
-    'Common Blackbird': 'Merel',
-    'Eurasian Oystercatcher': 'Scholekster',
+    'Common Wood Pigeon': 'Houtduif',
+    'Eurasian Magpie': 'Ekster',
+    'Eurasian Jay': 'Gaai',
+    'Carrion Crow': 'Zwarte Kraai',
+    'Mallard': 'Wilde Eend',
+    'Mute Swan': 'Knobbelzwaan',
+    'Great Cormorant': 'Aalscholver',
+    'Grey Heron': 'Blauwe Reiger',
     'Black-headed Gull': 'Kokmeeuw',
     'Herring Gull': 'Zilvermeeuw',
-    'Lesser Black-backed Gull': 'Kleine Mantelmeeuw',
+    'Common Kingfisher': 'IJsvogel',
+    'White Wagtail': 'Witte Kwikstaart',
+    'Song Thrush': 'Zanglijster',
+    'Dunnock': 'Heggenmus',
+    'Western Jackdaw': 'Kauw',
     'Common Chiffchaff': 'Tjiftjaf',
-    'European Goldfinch': 'Putter',
-    'Great Spotted Woodpecker': 'Grote Bonte Specht',
-    'Eurasian Wren': 'Winterkoning',
-    'European Robin': 'Roodborst',
+    'Willow Warbler': 'Fitis',
+    'Goldcrest': 'Goudhaantje',
+    'Long-tailed Tit': 'Staartmees',
+    'Marsh Tit': 'Glanskop',
+    'Coal Tit': 'Zwarte Mees',
+    'Common Moorhen': 'Waterhoen',
+    'Common Coot': 'Meerkoet',
+    'Northern Lapwing': 'Kievit',
+    'Common Sandpiper': 'Oeverloper',
+    'Common Snipe': 'Watersnip',
+    'Common Pheasant': 'Fazant',
     'Greylag Goose': 'Grauwe Gans',
     'Canada Goose': 'Canadese Gans',
-    'Common Moorhen': 'Waterhoen',
-    'Graylag Goose': 'Grauwe Gans',
-    'Great Blue Heron': 'Blauwe Reiger',
-    'Grey Heron': 'Blauwe Reiger',
+    'Barnacle Goose': 'Brandgans',
+    'Eurasian Oystercatcher': 'Scholekster',
+    'Pied Avocet': 'Kluut',
+    'Common Redstart': 'Gekraagde Roodstaart',
+    'Black Redstart': 'Zwarte Roodstaart',
+    'Grey Wagtail': 'Grote Gele Kwikstaart',
+    'Common Swift': 'Gierzwaluw'
   };
 
-  // Probeer eerst de Engelse naam
-  if (vogelMapping[engelseNaam]) {
-    return vogelMapping[engelseNaam];
-  }
-
-  // Als we geen directe match hebben, probeer te zoeken naar delen van de naam
-  for (const [engelseKey, nederlandseNaam] of Object.entries(vogelMapping)) {
-    if (engelseNaam.includes(engelseKey) || engelseKey.includes(engelseNaam)) {
-      return nederlandseNaam;
-    }
-  }
-
-  // Als er geen match is, geef aan dat de Nederlandse naam onbekend is
-  return 'Nederlandse naam onbekend';
+  return vogelNamen[engelseNaam] || wetenschappelijkeNaam || engelseNaam;
 };
 
 // Helper functie om een afbeelding URL voor een vogel te krijgen
