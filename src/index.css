@@ -171,8 +171,20 @@ input:focus, textarea:focus {
 .entry-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 12px;
+}
+
+.entry-header h3 {
+  margin-bottom: 4px;
+  margin-top: 0;
+}
+
+.entry-date {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 8px;
 }
 
 .entry-content {

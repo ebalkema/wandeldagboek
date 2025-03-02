@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 const EditEntry = ({ entry, onSave, onCancel }) => {
   // State voor het formulier
   const [formState, setFormState] = useState({
+    title: '',
     notes: '',
     category: '',
     customCategory: ''
@@ -15,6 +16,7 @@ const EditEntry = ({ entry, onSave, onCancel }) => {
   useEffect(() => {
     if (entry) {
       setFormState({
+        title: entry.title || '',
         notes: entry.notes || '',
         category: entry.category || '',
         customCategory: !categories.includes(entry.category) ? entry.category : ''
@@ -51,6 +53,7 @@ const EditEntry = ({ entry, onSave, onCancel }) => {
     // Bereid de update voor
     const updatedEntry = {
       ...entry,
+      title: formState.title,
       notes: formState.notes,
       category: finalCategory,
       updatedAt: new Date() // Timestamp voor update
@@ -72,6 +75,18 @@ const EditEntry = ({ entry, onSave, onCancel }) => {
         </div>
         
         {/* Bewerkbare velden */}
+        <div className="form-row">
+          <label htmlFor="title">Titel:</label>
+          <input 
+            type="text"
+            id="title"
+            name="title"
+            value={formState.title}
+            onChange={handleInputChange}
+            placeholder="Geef je wandelnotitie een titel..."
+          />
+        </div>
+        
         <div className="form-row">
           <label htmlFor="notes">Aantekeningen:</label>
           <textarea 

@@ -373,6 +373,35 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
     setNotes(e.target.value);
   };
 
+  // Functie om een betekenisvolle naam te genereren voor de wandelnotitie
+  const generateEntryName = () => {
+    // Datum en tijd formatteren
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('nl-NL', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    
+    const timeStr = now.toLocaleTimeString('nl-NL', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    // Locatienaam gebruiken indien beschikbaar
+    let locationPart = 'Onbekende locatie';
+    if (locationName && locationName.trim()) {
+      // Gebruik alleen het eerste deel van de locatienaam (tot de eerste komma)
+      locationPart = locationName.split(',')[0].trim();
+    } else if (location) {
+      // Als er geen locatienaam is maar wel coördinaten, gebruik dan een algemene beschrijving
+      locationPart = 'Wandeling';
+    }
+    
+    // Combineer de delen tot een betekenisvolle naam
+    return `${locationPart} - ${dateStr} ${timeStr}`;
+  };
+
   // Functie die wordt aangeroepen wanneer de gebruiker op Opslaan drukt
   const handleSave = async () => {
     console.log('handleSave functie aangeroepen');
@@ -387,8 +416,12 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
       // Definieer fallback waarden indien nodig
       const fallbackLocation = { latitude: 52.3676, longitude: 4.9041, name: 'Onbekende locatie' };
       
+      // Genereer een betekenisvolle naam voor de wandelnotitie
+      const entryTitle = generateEntryName();
+      
       // Alle gegevens voorbereiden voor opslaan
       const entryData = {
+        title: entryTitle, // Voeg de gegenereerde titel toe
         timestamp: new Date(), // Tijdstip van opslaan
         location: location || fallbackLocation,
         weather: weather || { temperature: 15, description: 'Bewolkt', icon: '03d', humidity: 70, windSpeed: 3.5 },

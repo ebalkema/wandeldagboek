@@ -227,7 +227,8 @@ const EntryList = ({ entries, onDelete, onViewMap, onEdit, loading }) => {
         filteredEntries.map((entry) => (
           <div key={entry.id} className="entry-item card">
             <div className="entry-header">
-              <h3>{formatDate(entry.timestamp || entry.createdAt)}</h3>
+              <h3>{entry.title || formatDate(entry.timestamp || entry.createdAt)}</h3>
+              {entry.title && <span className="entry-date">{formatDate(entry.timestamp || entry.createdAt)}</span>}
               <div className="entry-actions">
                 {entry.location && (
                   <button 
