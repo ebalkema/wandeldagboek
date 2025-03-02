@@ -48,14 +48,14 @@ function App() {
   const [toastMessage, setToastMessage] = useState(null); // Feedback bericht
   
   // Toast bericht tonen
-  const showToast = (message, type = 'info', duration = 3000) => {
+  const showToast = useCallback((message, type = 'info', duration = 3000) => {
     setToastMessage({ text: message, type, id: Date.now() });
     
     // Automatisch verdwijnen na duration ms
     setTimeout(() => {
       setToastMessage(null);
     }, duration);
-  };
+  }, []);
   
   // Toggle donkere modus
   const toggleDarkMode = () => {
@@ -101,7 +101,7 @@ function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [showToast, loadEntriesFromFirestore]);
 
   // Functie om entries op te halen uit Firestore
   const loadEntriesFromFirestore = useCallback(async () => {
@@ -130,8 +130,10 @@ function App() {
 
   // Haal entries op uit Firestore wanneer de gebruiker inlogt
   useEffect(() => {
-    loadEntriesFromFirestore();
-  }, [loadEntriesFromFirestore]);
+    if (user) {
+      loadEntriesFromFirestore();
+    }
+  }, [user, loadEntriesFromFirestore]);
 
   // Ververs entries handmatig
   const refreshEntries = () => {
@@ -291,6 +293,11 @@ function App() {
       setSelectedEntryId(entryId);
     }
     
+    // Als we naar list of map gaan, ververs dan de entries
+    if (newView === 'list' || newView === 'map') {
+      loadEntriesFromFirestore();
+    }
+    
     setView(newView);
   };
 
@@ -327,7 +334,7 @@ function App() {
               </button>
             </header>
             
-            <NavigationMenu currentView={view} onNavigate={setView} />
+            <NavigationMenu currentView={view} onNavigate={navigateTo} />
             
             {isOffline && (
               <div className="offline-indicator">
@@ -343,27 +350,26 @@ function App() {
             )}
 
             {/* Hoofdinhoud */}
-            {view === 'home' && <Home setView={setView} />}
+            {view === 'home' && <Home setView={navigateTo} />}
             {view === 'list' && (
               <EntryList
                 entries={entries}
                 onDelete={deleteEntry}
                 onEdit={(id) => {
-                  setSelectedEntryId(id);
-                  setView('edit');
+                  navigateTo('edit', id);
                 }}
                 loading={entriesLoading}
                 error={entriesError}
                 onRefresh={refreshEntries}
               />
             )}
-            {view === 'new' && <NewEntry onAddEntry={addEntry} onCancel={() => setView('map')} />}
+            {view === 'new' && <NewEntry onAddEntry={addEntry} onCancel={() => navigateTo('map')} />}
             {view === 'map' && <MapView entries={entries} />}
             {view === 'edit' && (
               <EditEntry
                 entry={getSelectedEntry()}
                 onSave={updateEntry}
-                onCancel={() => setView('list')}
+                onCancel={() => navigateTo('list')}
               />
             )}
           </div>

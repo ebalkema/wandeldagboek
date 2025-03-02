@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const NewEntry = ({ onAddEntry, onCancel }) => {
   // States voor de new entry
@@ -35,10 +35,10 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
         recognitionRef.current.stop();
       }
     };
-  }, []);
+  }, [fetchLocationAndWeather]);
 
   // Functie om locatie en weer op de achtergrond op te halen
-  const fetchLocationAndWeather = () => {
+  const fetchLocationAndWeather = useCallback(() => {
     if (navigator.geolocation) {
       setIsLoadingLocation(true);
       navigator.geolocation.getCurrentPosition(
@@ -58,7 +58,7 @@ const NewEntry = ({ onAddEntry, onCancel }) => {
     } else {
       setError('Geolocation wordt niet ondersteund door deze browser.');
     }
-  };
+  }, []);
 
   // Initialiseer de Speech Recognition API
   const initSpeechRecognition = () => {
