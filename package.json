@@ -1,8 +1,8 @@
 {
-  "name": "wandeldagboek-app",
+  "name": "wandeldagboek",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://ebalkema.github.io/wandeldagboek-app",
+  "homepage": "https://ebalkema.github.io/wandeldagboek",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
