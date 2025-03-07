@@ -1,0 +1,50 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  observations Observation[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Observation {
+  id          String   @id @default(cuid())
+  text        String
+  audioUrl    String?
+  location    String?
+  weather     Json?
+  photos      Photo[]
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Photo {
+  id            String      @id @default(cuid())
+  url          String
+  observationId String
+  observation   Observation @relation(fields: [observationId], references: [id])
+  createdAt     DateTime    @default(now())
+}
+
+model MonthlyContent {
+  id            String   @id @default(cuid())
+  month         Int
+  year          Int
+  facts         String[]
+  birdOfTheMonth Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([month, year])
+} 
