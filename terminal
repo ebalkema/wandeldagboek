@@ -1,0 +1,15 @@
+# Ga naar je home directory
+cd ~
+
+# Verwijder de oude projectmap als die bestaat
+rm -rf wandeldagboek
+
+# Maak een nieuw Next.js applicatie
+npx create-next-app@latest wandeldagboek --typescript --tailwind --eslint
+
+# Ga naar de projectmap
+cd wandeldagboek
+
+# Start de development server
+npm run dev
+
