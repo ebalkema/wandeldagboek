@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import Header from '../components/Header';
 
 export const metadata: Metadata = {
   title: 'Wandeldagboek',
@@ -14,11 +15,7 @@ export default function RootLayout({
   return (
     <html lang="nl">
       <body className="bg-gray-100">
-        <header className="bg-green-600 text-white p-4 shadow-md">
-          <div className="container mx-auto">
-            <h1 className="text-2xl font-bold">Wandeldagboek</h1>
-          </div>
-        </header>
+        <Header />
         <main className="container mx-auto py-8">
           {children}
         </main>
