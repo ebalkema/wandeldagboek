@@ -1,12 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  basePath: '/wandeldagboekv1',
+  basePath: '/wandeldagboek',
   images: {
     unoptimized: true,
   },
   // Zorg ervoor dat de app weet dat het op GitHub Pages draait
-  assetPrefix: '/wandeldagboekv1',
+  assetPrefix: '/wandeldagboek',
+  trailingSlash: true,
 };
 
 module.exports = nextConfig; 
