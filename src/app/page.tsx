@@ -1,63 +1,32 @@
-import Link from 'next/link';
+import React from 'react';
 
 export default function Home() {
   return (
-    <div className="space-y-8">
-      <section className="bg-green-50 p-6 rounded-lg">
-        <h1 className="text-2xl font-bold mb-4">Welkom bij het Wandeldagboek</h1>
-        <p className="text-gray-700 mb-4">
-          Leg je natuurwaarnemingen vast tijdens het wandelen. Spreek in wat je ziet,
-          voeg foto&apos;s toe en bouw je eigen natuurdagboek op.
-        </p>
-        <div className="flex space-x-4 mt-6">
-          <Link 
-            href="/natuurfeitjes" 
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            Natuurfeitjes
-          </Link>
-          <Link
-            href="/waarneming"
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Nieuwe waarneming
-          </Link>
-          <Link 
-            href="/dashboard" 
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-          >
-            Mijn waarnemingen
-          </Link>
-          <Link 
-            href="/podcast" 
-            className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
-          >
-            Podcast
-          </Link>
-        </div>
-      </section>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <h1 className="text-4xl font-bold mb-6">Wandeldagboek</h1>
+      <p className="text-xl mb-8">Jouw persoonlijke wandellogboek</p>
       
-      <section className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-4">Wandeldagboek App Functies</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h3 className="font-bold">Natuurfeitjes</h3>
-            <p>Ontdek interessante natuurfeitjes en de vogel van de maand.</p>
-          </div>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-bold">Waarnemingen vastleggen</h3>
-            <p>Spreek in wat je ziet en voeg foto&apos;s toe aan je waarnemingen.</p>
-          </div>
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <h3 className="font-bold">Persoonlijk dagboek</h3>
-            <p>Bekijk al je waarnemingen in je persoonlijke natuurdagboek.</p>
-          </div>
-          <div className="bg-amber-50 p-4 rounded-lg">
-            <h3 className="font-bold">Menno & Erwin Podcast</h3>
-            <p>Luister naar de nieuwste aflevering van de Menno & Erwin podcast.</p>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">Wandelingen bijhouden</h2>
+          <p>Houd al je wandelingen bij met datum, locatie, afstand en meer.</p>
         </div>
-      </section>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">Foto's toevoegen</h2>
+          <p>Voeg foto's toe aan je wandelingen om je herinneringen vast te leggen.</p>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">Statistieken bekijken</h2>
+          <p>Bekijk statistieken over je wandelingen, zoals totale afstand en tijd.</p>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">Routes delen</h2>
+          <p>Deel je favoriete routes met vrienden en familie.</p>
+        </div>
+      </div>
     </div>
   );
 } 
